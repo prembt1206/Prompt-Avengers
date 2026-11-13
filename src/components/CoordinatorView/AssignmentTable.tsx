@@ -147,3 +147,4 @@ export const AssignmentTable: React.FC<AssignmentTableProps> = ({ assignments })
     </div>
   );
 };
+

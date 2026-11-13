@@ -43,7 +43,7 @@ In rural and tribal regions, physical distance and unpredictable infrastructure 
 As specified in the challenge design parameters:
 1. **Single-User Demonstration:** The prototype is configured for single-evaluator exploration without complex multi-tenant concurrency.
 2. **Demo Role Toggle (Not Access Control):** The Coordinator View and Student View are switched via an instant demo toggle in the top header. This is a rapid demonstration feature, not role-based security (RBAC) or cryptographic authentication.
-3. **Synthetic Domain Data:** All 5 villages (*Kallupatti, Badepalli Junction, Devarkonda, Mallareddy Palle, Sirikonda*), 2 institutions (*Govt Higher Secondary School, Vidyalatha Polytechnic*), 7 road segments, 3 vehicle trips, and 17 student requests are purely fictional.
+3. **Synthetic Domain Data (Mangaluru Suburban / Coastal Karnataka Region):** All 5 rural hamlets (*Pavoor Riverine Fringe, Farangipete Junction, Kalladka Foothills, Ganjimutt Valley, Gurupura Riverbank*), 2 Mangaluru educational institutions (*St. Aloysius High School & PU College, Karnataka (Govt) Polytechnic — KPT*), 7 road segments, 3 vehicle trips, and 17 student requests are modeled for demonstration.
 4. **LocalStorage Storage Limitations & Privacy:**
    - State persists within the evaluator's current browser origin via `localStorage`.
    - Data is **not** synced to a centralized cloud database and is **not** shared across distinct browser sessions or devices.
@@ -65,15 +65,15 @@ Evaluators can verify the end-to-end resilience workflow following this exact se
 
 ### Step 1: Submit Student Transport Request
 1. Click the **"Student View"** toggle in the top navigation bar.
-2. Inspect the 17 seeded student requests or submit a custom request using the form (e.g., student name "Rohini Reddy" from *Kallupatti* to *Govt Higher Secondary School* for *Board Exam*).
+2. Inspect the 17 seeded student requests or submit a custom request using the form (e.g., student name "Deeksha Poojary" from *Pavoor Riverine Fringe* to *St. Aloysius High School & PU College* for *Karnataka SSLC Board Practical Exam*).
 3. The request is immediately registered into local state and scheduled for dispatch.
 
 ### Step 2: Coordinator Views Trips & Available Capacity
 1. Toggle back to **"Coordinator View"**.
 2. Examine the 3 vehicle trips:
-   - **Bus 01 — Yellow Mini-Bus:** 6 seats, serves *Kallupatti* & *Badepalli* → *Govt HSS* (arrives 08:15).
-   - **Van 02 — Panchayat Maxi-Cab:** 4 seats, serves *Devarkonda* & *Badepalli* → *Vidyalatha Polytechnic* (arrives 08:25).
-   - **Cruiser 03 — Community Cruiser:** 5 seats, serves *Sirikonda*, *Mallareddy*, & *Badepalli* → *Govt HSS* (arrives 08:20).
+   - **Bus 01 — KSRTC Rural Sarige Mini-Bus:** 6 seats, serves *Pavoor* & *Farangipete* → *St. Aloysius HSS, Light House Hill* (arrives 08:15).
+   - **Van 02 — Dakshina Kannada ZP Maxi-Cab:** 4 seats, serves *Kalladka* & *Farangipete* → *Karnataka Polytechnic (KPT), Kadri* (arrives 08:25).
+   - **Cruiser 03 — Kudla Community Cruiser:** 5 seats, serves *Gurupura*, *Ganjimutt*, & *Farangipete* → *St. Aloysius HSS* (arrives 08:20).
 3. Total available seats = 15. Total student demand = 17 requests.
 
 ### Step 3: Run Baseline Allocation
@@ -85,8 +85,8 @@ Evaluators can verify the end-to-end resilience workflow following this exact se
 
 ### Step 4: Simulate Disruption (Vehicle Breakdown or Blocked Causeway)
 Choose either manual toggles or the one-click preset bar:
-- **Option A (Vehicle Cancellation):** Click preset **"Scenario A: Bus 01 Engine Breakdown"** (or toggle cancellation on Bus 01 card). Bus 01 (6 seats) is marked out-of-service.
-- **Option B (Route Obstruction):** Click preset **"Scenario B: Sirikonda Causeway Flash Flood"** (or click the Sirikonda–Mallareddy segment on the interactive SVG map). The low-lying causeway is marked impassable.
+- **Option A (Vehicle Cancellation):** Click preset **"Scenario A: KSRTC Bus 01 Engine Breakdown"** (or toggle cancellation on Bus 01 card). KSRTC Bus 01 (6 seats) is marked out-of-service.
+- **Option B (Route Obstruction):** Click preset **"Scenario B: Gurupura Causeway Flash Flood"** (or click the Gurupura–Ganjimutt segment on the interactive SVG map). The low-lying causeway over the Phalguni river is marked impassable.
 
 ### Step 5: Run Recovery Allocation
 1. Click **"2. Run Recovery Allocation"**.
@@ -97,8 +97,8 @@ Choose either manual toggles or the one-click preset bar:
 
 ### Step 6: Review Valid New Assignments & Honest Unmet Explanations
 1. Open the **"Assignments & Unmet Demand"** tab:
-   - *Kallupatti* students (whose only service was Bus 01) are flagged as **Unmet** with clear reason: `"The only scheduled transport serving Kallupatti (Bus 01) has been CANCELLED. No active alternative vehicle exists for this sector."`
-   - *Badepalli* students heading to Govt HSS are evaluated for *Cruiser 03*; seats are allocated by academic priority (Board Exam candidates first) until Cruiser 03 reaches its 5-seat limit.
+   - *Pavoor* students (whose only service was Bus 01) are flagged as **Unmet** with clear reason: `"The only scheduled transport serving Pavoor Riverine Fringe (Bus 01) has been CANCELLED. No active alternative vehicle exists for this sector."`
+   - *Farangipete* students heading to St. Aloysius are evaluated for *Cruiser 03*; seats are allocated by academic priority (Board Exam candidates first) until Cruiser 03 reaches its 5-seat limit.
 2. Open the **"Baseline vs Recovery Diff"** tab (P1) to inspect the side-by-side impact delta, displaced students, and rerouted students.
 3. Open the **"Solver Trace Logs"** tab (P1) for the step-by-step deterministic audit trail.
 4. Click **"Reset Demo"** at any time to return the fleet and network to the default seed state.

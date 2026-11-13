@@ -95,3 +95,4 @@ export const SolverLogViewer: React.FC<SolverLogViewerProps> = ({ logs }) => {
     </div>
   );
 };
+

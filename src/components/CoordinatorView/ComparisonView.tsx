@@ -147,3 +147,4 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     </div>
   );
 };
+

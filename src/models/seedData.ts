@@ -2,119 +2,119 @@ import { Village, Institution, TransportConnection, VehicleTrip, StudentRequest 
 
 export const SEEDED_VILLAGES: Village[] = [
   {
-    id: 'vil-kallupatti',
-    name: 'Kallupatti',
-    panchayat: 'Kallupatti Gram Panchayat',
+    id: 'vil-pavoor',
+    name: 'Pavoor Riverine Fringe',
+    panchayat: 'Pavoor Grama Panchayat, Mangaluru Taluq',
     coordinates: { x: 90, y: 120 },
-    description: 'Remote interior hamlet flanked by forest reserve; accessed via single unpaved corridor.',
+    description: 'Remote interior hamlet flanked by Netravati river backwaters; accessed via single vulnerable unpaved corridor.',
     connectivityType: 'Fair-Weather'
   },
   {
-    id: 'vil-badepalli',
-    name: 'Badepalli Junction',
-    panchayat: 'Badepalli Mandal',
+    id: 'vil-farangipete',
+    name: 'Farangipete Junction',
+    panchayat: 'Bantwal Mandal / Mangaluru East Arterial',
     coordinates: { x: 300, y: 220 },
-    description: 'Central agricultural crossroads connecting northern hilly tracts and eastern plains.',
+    description: 'Central transit crossroads connecting rural river valleys with Mangaluru city educational institutes.',
     connectivityType: 'All-Weather'
   },
   {
-    id: 'vil-devarkonda',
-    name: 'Devarkonda',
-    panchayat: 'Devarkonda Gram Panchayat',
+    id: 'vil-kalladka',
+    name: 'Kalladka Foothills',
+    panchayat: 'Golthamajalu / Kalladka Grama Panchayat',
     coordinates: { x: 120, y: 340 },
-    description: 'Elevated settlement with winding gradient roads; predominantly tribal hamlets.',
+    description: 'Elevated Western Ghat foothill settlement with winding road gradients and isolated student clusters.',
     connectivityType: 'Fair-Weather'
   },
   {
-    id: 'vil-mallareddy',
-    name: 'Mallareddy Palle',
-    panchayat: 'Mallareddy Gram Panchayat',
+    id: 'vil-ganjimutt',
+    name: 'Ganjimutt Valley',
+    panchayat: 'Ganjimutt Grama Panchayat, Mangaluru North',
     coordinates: { x: 490, y: 340 },
-    description: 'Agrarian riverine village with farming clusters; secondary transit waypoint.',
+    description: 'Agrarian river basin village along the Gurupura valley; secondary transit waypoint.',
     connectivityType: 'All-Weather'
   },
   {
-    id: 'vil-sirikonda',
-    name: 'Sirikonda',
-    panchayat: 'Sirikonda Gram Panchayat',
+    id: 'vil-gurupura',
+    name: 'Gurupura Riverbank',
+    panchayat: 'Gurupura Grama Panchayat, Mangaluru',
     coordinates: { x: 670, y: 220 },
-    description: 'Low-lying river valley village; vulnerable to seasonal monsoon overflow on the causeway.',
+    description: 'Low-lying riverbank settlement along the Phalguni (Gurupura) river; causeway submerges during heavy coastal monsoon runoff.',
     connectivityType: 'Vulnerable River Crossing'
   }
 ];
 
 export const SEEDED_INSTITUTIONS: Institution[] = [
   {
-    id: 'inst-ghss',
-    name: 'Govt Higher Secondary School',
-    code: 'GHSS-TALUQ-01',
+    id: 'inst-aloysius',
+    name: 'St. Aloysius High School & PU College',
+    code: 'ST-ALOYSIUS-MLR',
     type: 'Higher Secondary School',
     coordinates: { x: 300, y: 40 },
     schoolStartTime: '08:30',
-    address: 'Collectorate Road, Taluq Headquarters'
+    address: 'Light House Hill Road, Hampankatta, Mangaluru — 575001'
   },
   {
-    id: 'inst-poly',
-    name: 'Vidyalatha Rural Polytechnic & ITI',
-    code: 'VR-POLY-04',
+    id: 'inst-kpt',
+    name: 'Karnataka (Govt) Polytechnic (KPT)',
+    code: 'KPT-KADRI-MLR',
     type: 'Polytechnic & Vocational ITI',
     coordinates: { x: 300, y: 440 },
     schoolStartTime: '08:45',
-    address: 'Industrial Development Area, South Bypass'
+    address: 'KPT Junction, Kadri Hills, Mangaluru — 575004'
   }
 ];
 
 export const SEEDED_CONNECTIONS: TransportConnection[] = [
   {
-    id: 'seg-kal-bad',
-    fromId: 'vil-kallupatti',
-    toId: 'vil-badepalli',
-    fromName: 'Kallupatti',
-    toName: 'Badepalli Junction',
+    id: 'seg-pav-far',
+    fromId: 'vil-pavoor',
+    toId: 'vil-farangipete',
+    fromName: 'Pavoor Fringe',
+    toName: 'Farangipete Junction',
     distanceKm: 12,
     travelMinutes: 25,
     roadType: 'Gravel Corridor',
     isBlocked: false
   },
   {
-    id: 'seg-bad-ghss',
-    fromId: 'vil-badepalli',
-    toId: 'inst-ghss',
-    fromName: 'Badepalli Junction',
-    toName: 'Govt Higher Secondary School',
+    id: 'seg-far-aloysius',
+    fromId: 'vil-farangipete',
+    toId: 'inst-aloysius',
+    fromName: 'Farangipete Junction',
+    toName: 'St. Aloysius School, Light House Hill',
     distanceKm: 14,
     travelMinutes: 25,
     roadType: 'All-Weather Tar',
     isBlocked: false
   },
   {
-    id: 'seg-dev-bad',
-    fromId: 'vil-devarkonda',
-    toId: 'vil-badepalli',
-    fromName: 'Devarkonda',
-    toName: 'Badepalli Junction',
+    id: 'seg-kal-far',
+    fromId: 'vil-kalladka',
+    toId: 'vil-farangipete',
+    fromName: 'Kalladka Foothills',
+    toName: 'Farangipete Junction',
     distanceKm: 10,
     travelMinutes: 20,
     roadType: 'Gravel Corridor',
     isBlocked: false
   },
   {
-    id: 'seg-bad-poly',
-    fromId: 'vil-badepalli',
-    toId: 'inst-poly',
-    fromName: 'Badepalli Junction',
-    toName: 'Vidyalatha Rural Polytechnic & ITI',
+    id: 'seg-far-kpt',
+    fromId: 'vil-farangipete',
+    toId: 'inst-kpt',
+    fromName: 'Farangipete Junction',
+    toName: 'Karnataka Polytechnic (KPT), Kadri',
     distanceKm: 16,
     travelMinutes: 30,
     roadType: 'All-Weather Tar',
     isBlocked: false
   },
   {
-    id: 'seg-siri-mal',
-    fromId: 'vil-sirikonda',
-    toId: 'vil-mallareddy',
-    fromName: 'Sirikonda',
-    toName: 'Mallareddy Palle',
+    id: 'seg-guru-ganji',
+    fromId: 'vil-gurupura',
+    toId: 'vil-ganjimutt',
+    fromName: 'Gurupura Riverbank',
+    toName: 'Ganjimutt Valley',
     distanceKm: 8,
     travelMinutes: 20,
     roadType: 'Low-Lying Causeway',
@@ -122,22 +122,22 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     blockedReason: undefined
   },
   {
-    id: 'seg-mal-bad',
-    fromId: 'vil-mallareddy',
-    toId: 'vil-badepalli',
-    fromName: 'Mallareddy Palle',
-    toName: 'Badepalli Junction',
+    id: 'seg-ganji-far',
+    fromId: 'vil-ganjimutt',
+    toId: 'vil-farangipete',
+    fromName: 'Ganjimutt Valley',
+    toName: 'Farangipete Junction',
     distanceKm: 11,
     travelMinutes: 20,
     roadType: 'Gravel Corridor',
     isBlocked: false
   },
   {
-    id: 'seg-mal-ghss',
-    fromId: 'vil-mallareddy',
-    toId: 'inst-ghss',
-    fromName: 'Mallareddy Palle',
-    toName: 'Govt Higher Secondary School',
+    id: 'seg-ganji-aloysius',
+    fromId: 'vil-ganjimutt',
+    toId: 'inst-aloysius',
+    fromName: 'Ganjimutt Valley',
+    toName: 'St. Aloysius School, Light House Hill',
     distanceKm: 18,
     travelMinutes: 35,
     roadType: 'Paved Highway',
@@ -148,332 +148,349 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
 export const SEEDED_VEHICLE_TRIPS: VehicleTrip[] = [
   {
     id: 'trip-01',
-    vehicleName: 'Bus 01 — Yellow Mini-Bus',
-    registrationNumber: 'AP-29-TB-1044',
+    vehicleName: 'Bus 01 — KSRTC Rural Sarige Mini-Bus',
+    registrationNumber: 'KA-19-F-1044',
     vehicleType: 'Mini-Bus',
-    driverName: 'Rameshwaram G.',
+    driverName: 'Shekhara Poojary',
     capacity: 6, // Deliberately limited capacity
     isCancelled: false,
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
     departureTime: '07:15',
     finalArrivalTime: '08:15',
     stops: [
       {
-        villageId: 'vil-kallupatti',
-        villageName: 'Kallupatti',
+        villageId: 'vil-pavoor',
+        villageName: 'Pavoor Riverine Fringe',
         arrivalTime: '07:15',
         departureTime: '07:20',
         order: 1
       },
       {
-        villageId: 'vil-badepalli',
-        villageName: 'Badepalli Junction',
+        villageId: 'vil-farangipete',
+        villageName: 'Farangipete Junction',
         arrivalTime: '07:45',
         departureTime: '07:50',
         order: 2
       }
     ],
-    pathConnectionIds: ['seg-kal-bad', 'seg-bad-ghss']
+    pathConnectionIds: ['seg-pav-far', 'seg-far-aloysius']
   },
   {
     id: 'trip-02',
-    vehicleName: 'Van 02 — Panchayat Rural Maxi-Cab',
-    registrationNumber: 'AP-29-VA-5012',
+    vehicleName: 'Van 02 — Dakshina Kannada ZP Maxi-Cab',
+    registrationNumber: 'KA-19-VA-5012',
     vehicleType: 'Maxi-Cab Van',
-    driverName: 'Bhikshamayya K.',
+    driverName: 'Ganesh Shetty',
     capacity: 4, // Deliberately limited capacity
     isCancelled: false,
-    destinationInstitutionId: 'inst-poly',
-    destinationName: 'Vidyalatha Rural Polytechnic & ITI',
+    destinationInstitutionId: 'inst-kpt',
+    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
     departureTime: '07:20',
     finalArrivalTime: '08:25',
     stops: [
       {
-        villageId: 'vil-devarkonda',
-        villageName: 'Devarkonda',
+        villageId: 'vil-kalladka',
+        villageName: 'Kalladka Foothills',
         arrivalTime: '07:20',
         departureTime: '07:25',
         order: 1
       },
       {
-        villageId: 'vil-badepalli',
-        villageName: 'Badepalli Junction',
+        villageId: 'vil-farangipete',
+        villageName: 'Farangipete Junction',
         arrivalTime: '07:50',
         departureTime: '07:55',
         order: 2
       }
     ],
-    pathConnectionIds: ['seg-dev-bad', 'seg-bad-poly']
+    pathConnectionIds: ['seg-kal-far', 'seg-far-kpt']
   },
   {
     id: 'trip-03',
-    vehicleName: 'Cruiser 03 — Community Shared Cruiser',
-    registrationNumber: 'AP-29-CR-8821',
+    vehicleName: 'Cruiser 03 — Kudla Community Rural Cruiser',
+    registrationNumber: 'KA-19-CR-8821',
     vehicleType: 'Rural Cruiser',
-    driverName: 'Sattaiah N.',
+    driverName: 'Anand D’Souza',
     capacity: 5, // Deliberately limited capacity
     isCancelled: false,
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
     departureTime: '07:10',
     finalArrivalTime: '08:20',
     stops: [
       {
-        villageId: 'vil-sirikonda',
-        villageName: 'Sirikonda',
+        villageId: 'vil-gurupura',
+        villageName: 'Gurupura Riverbank',
         arrivalTime: '07:10',
         departureTime: '07:15',
         order: 1
       },
       {
-        villageId: 'vil-mallareddy',
-        villageName: 'Mallareddy Palle',
+        villageId: 'vil-ganjimutt',
+        villageName: 'Ganjimutt Valley',
         arrivalTime: '07:35',
         departureTime: '07:40',
         order: 2
       },
       {
-        villageId: 'vil-badepalli',
-        villageName: 'Badepalli Junction',
+        villageId: 'vil-farangipete',
+        villageName: 'Farangipete Junction',
         arrivalTime: '07:55',
         departureTime: '08:00',
         order: 3
       }
     ],
-    pathConnectionIds: ['seg-siri-mal', 'seg-mal-bad', 'seg-bad-ghss']
+    pathConnectionIds: ['seg-guru-ganji', 'seg-ganji-far', 'seg-far-aloysius']
   }
 ];
 
 export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
-  // --- Kallupatti (4 requests -> Destination: Govt HSS) ---
+  // --- Pavoor Riverine Fringe (4 requests -> Destination: St. Aloysius HSS) ---
   {
-    id: 'req-kal-01',
-    studentName: 'Aarti Sharma',
+    id: 'req-pav-01',
+    studentName: 'Deeksha Poojary',
     gradeOrStream: 'Grade 10',
-    originVillageId: 'vil-kallupatti',
-    originVillageName: 'Kallupatti',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-pavoor',
+    originVillageName: 'Pavoor Riverine Fringe',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:15:00Z',
-    notes: 'State SSC Board Practical Exam today'
+    notes: 'Karnataka SSLC State Board Science Practical Exam'
   },
   {
-    id: 'req-kal-02',
-    studentName: 'Manoj Nayak',
+    id: 'req-pav-02',
+    studentName: 'Prajwal Shetty',
     gradeOrStream: 'Grade 10',
-    originVillageId: 'vil-kallupatti',
-    originVillageName: 'Kallupatti',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-pavoor',
+    originVillageName: 'Pavoor Riverine Fringe',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:20:00Z',
-    notes: 'Math Pre-Finals examination'
+    notes: 'Mathematics State Preparatory Exam'
   },
   {
-    id: 'req-kal-03',
-    studentName: 'Kavitha Rao',
-    gradeOrStream: 'Grade 11 - Science',
-    originVillageId: 'vil-kallupatti',
-    originVillageName: 'Kallupatti',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    id: 'req-pav-03',
+    studentName: 'Vaishnavi Bhat',
+    gradeOrStream: 'Grade 11 - Science (PUC)',
+    originVillageId: 'vil-pavoor',
+    originVillageName: 'Pavoor Riverine Fringe',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'LAB_PRACTICAL',
     submissionTimestamp: '2026-11-13T06:22:00Z',
     notes: 'Physics laboratory practical attendance mandatory'
   },
   {
-    id: 'req-kal-04',
-    studentName: 'Sandeep Varma',
+    id: 'req-pav-04',
+    studentName: 'Chethan Kulal',
     gradeOrStream: 'Grade 9',
-    originVillageId: 'vil-kallupatti',
-    originVillageName: 'Kallupatti',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-pavoor',
+    originVillageName: 'Pavoor Riverine Fringe',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'REGULAR_ATTENDANCE',
     submissionTimestamp: '2026-11-13T06:25:00Z',
-    notes: 'Daily curriculum class'
+    notes: 'Daily high school curriculum class'
   },
 
-  // --- Badepalli (4 requests -> 2 to Govt HSS, 2 to Polytechnic) ---
+  // --- Farangipete Junction (4 requests -> 2 to St. Aloysius, 2 to KPT Kadri) ---
   {
-    id: 'req-bad-01',
-    studentName: 'Suresh Reddy',
-    gradeOrStream: 'Polytechnic Year 2 - Mech',
-    originVillageId: 'vil-badepalli',
-    originVillageName: 'Badepalli Junction',
-    destinationInstitutionId: 'inst-poly',
-    destinationName: 'Vidyalatha Rural Polytechnic & ITI',
+    id: 'req-far-01',
+    studentName: 'Suhas Rai',
+    gradeOrStream: 'Diploma Mechanical Year 2 (KPT)',
+    originVillageId: 'vil-farangipete',
+    originVillageName: 'Farangipete Junction',
+    destinationInstitutionId: 'inst-kpt',
+    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
+    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
     requiredArrivalTime: '08:45',
     priorityCategory: 'LAB_PRACTICAL',
     submissionTimestamp: '2026-11-13T06:10:00Z',
-    notes: 'Workshop foundry assessment'
+    notes: 'KPT Central Mechanical Foundry Workshop assessment'
   },
   {
-    id: 'req-bad-02',
-    studentName: 'Deepa Naik',
-    gradeOrStream: 'Polytechnic Year 1 - EEE',
-    originVillageId: 'vil-badepalli',
-    originVillageName: 'Badepalli Junction',
-    destinationInstitutionId: 'inst-poly',
-    destinationName: 'Vidyalatha Rural Polytechnic & ITI',
+    id: 'req-far-02',
+    studentName: 'Ashwitha D’Souza',
+    gradeOrStream: 'Diploma EEE Year 1 (KPT)',
+    originVillageId: 'vil-farangipete',
+    originVillageName: 'Farangipete Junction',
+    destinationInstitutionId: 'inst-kpt',
+    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
+    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
     requiredArrivalTime: '08:45',
     priorityCategory: 'REGULAR_ATTENDANCE',
     submissionTimestamp: '2026-11-13T06:30:00Z',
-    notes: 'Circuits lecture'
+    notes: 'Electrical Circuits lecture at KPT Kadri'
   },
   {
-    id: 'req-bad-03',
-    studentName: 'Rahul Goud',
+    id: 'req-far-03',
+    studentName: 'Shravan Alva',
     gradeOrStream: 'Grade 10',
-    originVillageId: 'vil-badepalli',
-    originVillageName: 'Badepalli Junction',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-farangipete',
+    originVillageName: 'Farangipete Junction',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:12:00Z',
-    notes: 'SSC Model Paper Exam'
+    notes: 'SSLC Model Pre-Board Exam'
   },
   {
-    id: 'req-bad-04',
-    studentName: 'Bhavani M.',
-    gradeOrStream: 'Grade 12 - Arts',
-    originVillageId: 'vil-badepalli',
-    originVillageName: 'Badepalli Junction',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    id: 'req-far-04',
+    studentName: 'Meghana Acharya',
+    gradeOrStream: 'Grade 12 - Commerce (PUC)',
+    originVillageId: 'vil-farangipete',
+    originVillageName: 'Farangipete Junction',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'REGULAR_ATTENDANCE',
     submissionTimestamp: '2026-11-13T06:40:00Z',
-    notes: 'Economics seminar'
+    notes: 'Accountancy seminar at St. Aloysius'
   },
 
-  // --- Devarkonda (3 requests -> Destination: Polytechnic) ---
+  // --- Kalladka Foothills (3 requests -> Destination: KPT Kadri) ---
   {
-    id: 'req-dev-01',
-    studentName: 'Raju Korra',
-    gradeOrStream: 'Polytechnic Year 1 - Civil',
-    originVillageId: 'vil-devarkonda',
-    originVillageName: 'Devarkonda',
-    destinationInstitutionId: 'inst-poly',
-    destinationName: 'Vidyalatha Rural Polytechnic & ITI',
+    id: 'req-kal-01',
+    studentName: 'Rakshith Kotian',
+    gradeOrStream: 'Diploma Civil Year 1 (KPT)',
+    originVillageId: 'vil-kalladka',
+    originVillageName: 'Kalladka Foothills',
+    destinationInstitutionId: 'inst-kpt',
+    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
+    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
     requiredArrivalTime: '08:45',
     priorityCategory: 'LAB_PRACTICAL',
     submissionTimestamp: '2026-11-13T06:18:00Z',
-    notes: 'Surveying field exercise'
+    notes: 'Highway & Surveying field exercise at KPT'
   },
   {
-    id: 'req-dev-02',
-    studentName: 'Sunita Bai',
-    gradeOrStream: 'Polytechnic Year 2 - Comp',
-    originVillageId: 'vil-devarkonda',
-    originVillageName: 'Devarkonda',
-    destinationInstitutionId: 'inst-poly',
-    destinationName: 'Vidyalatha Rural Polytechnic & ITI',
+    id: 'req-kal-02',
+    studentName: 'Harshitha Hegde',
+    gradeOrStream: 'Diploma Computer Science Year 2 (KPT)',
+    originVillageId: 'vil-kalladka',
+    originVillageName: 'Kalladka Foothills',
+    destinationInstitutionId: 'inst-kpt',
+    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
+    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
     requiredArrivalTime: '08:45',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:05:00Z',
-    notes: 'Semester Diploma Mid-term'
+    notes: 'Board of Technical Examinations (BTE) Semester Mid-term'
   },
   {
-    id: 'req-dev-03',
-    studentName: 'Ganesh Rathod',
-    gradeOrStream: 'Polytechnic Year 1 - Mech',
-    originVillageId: 'vil-devarkonda',
-    originVillageName: 'Devarkonda',
-    destinationInstitutionId: 'inst-poly',
-    destinationName: 'Vidyalatha Rural Polytechnic & ITI',
+    id: 'req-kal-03',
+    studentName: 'Abhishek Mendon',
+    gradeOrStream: 'Diploma Automobile Year 1 (KPT)',
+    originVillageId: 'vil-kalladka',
+    originVillageName: 'Kalladka Foothills',
+    destinationInstitutionId: 'inst-kpt',
+    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
+    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
     requiredArrivalTime: '08:45',
     priorityCategory: 'REGULAR_ATTENDANCE',
     submissionTimestamp: '2026-11-13T06:35:00Z',
     notes: 'Engineering graphics lecture'
   },
 
-  // --- Mallareddy Palle (3 requests -> Destination: Govt HSS) ---
+  // --- Ganjimutt Valley (3 requests -> Destination: St. Aloysius HSS) ---
   {
-    id: 'req-mal-01',
-    studentName: 'Lakshmi Narayana',
-    gradeOrStream: 'Grade 12 - Science',
-    originVillageId: 'vil-mallareddy',
-    originVillageName: 'Mallareddy Palle',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    id: 'req-ganji-01',
+    studentName: 'Divya Shenoy',
+    gradeOrStream: 'Grade 12 - Science (PUC)',
+    originVillageId: 'vil-ganjimutt',
+    originVillageName: 'Ganjimutt Valley',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:08:00Z',
-    notes: 'Chemistry board practical grading'
+    notes: 'Chemistry Board Practical Internal Grading'
   },
   {
-    id: 'req-mal-02',
-    studentName: 'Anitha Kumari',
+    id: 'req-ganji-02',
+    studentName: 'Karthik Bhandary',
     gradeOrStream: 'Grade 10',
-    originVillageId: 'vil-mallareddy',
-    originVillageName: 'Mallareddy Palle',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-ganjimutt',
+    originVillageName: 'Ganjimutt Valley',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:14:00Z',
-    notes: 'Social Studies Unit Test'
+    notes: 'Kannada Language Unit Test'
   },
   {
-    id: 'req-mal-03',
-    studentName: 'Pradeep Kumar',
-    gradeOrStream: 'Grade 11 - Commerce',
-    originVillageId: 'vil-mallareddy',
-    originVillageName: 'Mallareddy Palle',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    id: 'req-ganji-03',
+    studentName: 'Ananya Nayak',
+    gradeOrStream: 'Grade 11 - Arts (PUC)',
+    originVillageId: 'vil-ganjimutt',
+    originVillageName: 'Ganjimutt Valley',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'REGULAR_ATTENDANCE',
     submissionTimestamp: '2026-11-13T06:45:00Z',
-    notes: 'Accountancy class'
+    notes: 'History & Sociology lecture'
   },
 
-  // --- Sirikonda (3 requests -> Destination: Govt HSS) ---
+  // --- Gurupura Riverbank (3 requests -> Destination: St. Aloysius HSS) ---
   {
-    id: 'req-siri-01',
-    studentName: 'Maheshwari B.',
+    id: 'req-guru-01',
+    studentName: 'Prathiksha Prabhu',
     gradeOrStream: 'Grade 10',
-    originVillageId: 'vil-sirikonda',
-    originVillageName: 'Sirikonda',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-gurupura',
+    originVillageName: 'Gurupura Riverbank',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:02:00Z',
-    notes: 'Biology Board Practical'
+    notes: 'Biology Board Practical Exam'
   },
   {
-    id: 'req-siri-02',
-    studentName: 'Venkat Ram',
+    id: 'req-guru-02',
+    studentName: 'Mohammed Shafi',
     gradeOrStream: 'Grade 10',
-    originVillageId: 'vil-sirikonda',
-    originVillageName: 'Sirikonda',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-gurupura',
+    originVillageName: 'Gurupura Riverbank',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
     submissionTimestamp: '2026-11-13T06:06:00Z',
-    notes: 'English Grammar Assessment'
+    notes: 'English Pre-Final Exam'
   },
   {
-    id: 'req-siri-03',
-    studentName: 'Swathi K.',
+    id: 'req-guru-03',
+    studentName: 'Swathi Salian',
     gradeOrStream: 'Grade 9',
-    originVillageId: 'vil-sirikonda',
-    originVillageName: 'Sirikonda',
-    destinationInstitutionId: 'inst-ghss',
-    destinationName: 'Govt Higher Secondary School',
+    originVillageId: 'vil-gurupura',
+    originVillageName: 'Gurupura Riverbank',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'REGULAR_ATTENDANCE',
     submissionTimestamp: '2026-11-13T06:50:00Z',
-    notes: 'General science lesson'
+    notes: 'Secondary science lesson'
   }
 ];

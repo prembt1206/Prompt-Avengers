@@ -243,3 +243,4 @@ export const VehicleTripList: React.FC<VehicleTripListProps> = ({
     </div>
   );
 };
+

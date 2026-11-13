@@ -14,16 +14,16 @@ export interface DisruptionScenario {
 export const DISRUPTION_SCENARIOS: DisruptionScenario[] = [
   {
     id: 'bus-breakdown',
-    name: 'Scenario A: Bus 01 Engine Breakdown',
+    name: 'Scenario A: KSRTC Bus 01 Engine Breakdown',
     badge: 'Vehicle Cancellation',
-    description: 'Yellow Mini-Bus (Trip 01) fails morning start with an overheated radiator. Leaves Kallupatti with no service and Badepalli students seeking alternate seats.',
+    description: 'KSRTC Sarige Mini-Bus (Trip 01) fails morning start at Farangipete depot with an overheated radiator. Leaves Pavoor Fringe with no service and Farangipete students seeking alternate seats.',
     apply: (trips, connections) => {
       const updatedTrips = trips.map(t =>
         t.id === 'trip-01'
           ? {
               ...t,
               isCancelled: true,
-              cancelReason: 'Radiator crack & engine overheat during depot pre-trip check'
+              cancelReason: 'Depot radiator crack & cooling system failure during morning pre-trip check'
             }
           : t
       );
@@ -32,16 +32,16 @@ export const DISRUPTION_SCENARIOS: DisruptionScenario[] = [
   },
   {
     id: 'causeway-flood',
-    name: 'Scenario B: Sirikonda Causeway Flash Flood',
+    name: 'Scenario B: Gurupura Causeway Flash Flood',
     badge: 'Route Blocked',
-    description: 'Heavy overnight hill runoff submerges the Sirikonda–Mallareddy low-lying causeway under 2 feet of water. Vehicles cannot reach Sirikonda hamlet.',
+    description: 'Heavy coastal Western Ghat runoff submerges the Gurupura–Ganjimutt river causeway under 2.5 feet of water. Vehicles cannot reach Gurupura Riverbank settlement.',
     apply: (trips, connections) => {
       const updatedConnections = connections.map(c =>
-        c.id === 'seg-siri-mal'
+        c.id === 'seg-guru-ganji'
           ? {
               ...c,
               isBlocked: true,
-              blockedReason: 'River causeway submerged under 2ft runoff; bridge impassable for low-clearance vehicles'
+              blockedReason: 'Phalguni (Gurupura) river causeway submerged under 2.5ft flood runoff; road impassable'
             }
           : c
       );
@@ -50,9 +50,9 @@ export const DISRUPTION_SCENARIOS: DisruptionScenario[] = [
   },
   {
     id: 'cascading-both',
-    name: 'Scenario C: Dual Crisis (Bus Breakdown + Flash Flood)',
+    name: 'Scenario C: Dual Coastal Crisis (Bus Failure + River Flood)',
     badge: 'Cascading Failure',
-    description: 'Combined morning crisis: Bus 01 is non-operational AND the Sirikonda river crossing is inundated. Tests maximum resilience triage under severe seat deficits.',
+    description: 'Combined morning coastal monsoon crisis: KSRTC Bus 01 is non-operational AND the Gurupura river causeway is completely flooded. Tests emergency triage under extreme seat deficits.',
     apply: (trips, connections) => {
       const updatedTrips = trips.map(t =>
         t.id === 'trip-01'
@@ -64,11 +64,11 @@ export const DISRUPTION_SCENARIOS: DisruptionScenario[] = [
           : t
       );
       const updatedConnections = connections.map(c =>
-        c.id === 'seg-siri-mal'
+        c.id === 'seg-guru-ganji'
           ? {
               ...c,
               isBlocked: true,
-              blockedReason: 'River causeway submerged under 2ft flood runoff'
+              blockedReason: 'Gurupura river causeway submerged under 2.5ft flood runoff'
             }
           : c
       );
@@ -79,7 +79,7 @@ export const DISRUPTION_SCENARIOS: DisruptionScenario[] = [
     id: 'clear-all',
     name: 'Clear All Disruptions',
     badge: 'Normal Fleet',
-    description: 'Clears all vehicle cancellation flags and reopens all blocked road connections across the network.',
+    description: 'Clears all vehicle cancellation flags and reopens all blocked road corridors across the Mangaluru suburban network.',
     apply: (trips, connections) => {
       const updatedTrips = trips.map(t => ({
         ...t,

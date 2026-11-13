@@ -30,17 +30,17 @@ interface LegSegmentMapping {
 // Maps each trip's consecutive stops & final destination to their corresponding connection segments
 const TRIP_LEG_MAPPINGS: Record<string, LegSegmentMapping[]> = {
   'trip-01': [
-    { fromStopId: 'vil-kallupatti', toStopOrDestId: 'vil-badepalli', connectionId: 'seg-kal-bad' },
-    { fromStopId: 'vil-badepalli', toStopOrDestId: 'inst-ghss', connectionId: 'seg-bad-ghss' }
+    { fromStopId: 'vil-pavoor', toStopOrDestId: 'vil-farangipete', connectionId: 'seg-pav-far' },
+    { fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-aloysius', connectionId: 'seg-far-aloysius' }
   ],
   'trip-02': [
-    { fromStopId: 'vil-devarkonda', toStopOrDestId: 'vil-badepalli', connectionId: 'seg-dev-bad' },
-    { fromStopId: 'vil-badepalli', toStopOrDestId: 'inst-poly', connectionId: 'seg-bad-poly' }
+    { fromStopId: 'vil-kalladka', toStopOrDestId: 'vil-farangipete', connectionId: 'seg-kal-far' },
+    { fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-kpt', connectionId: 'seg-far-kpt' }
   ],
   'trip-03': [
-    { fromStopId: 'vil-sirikonda', toStopOrDestId: 'vil-mallareddy', connectionId: 'seg-siri-mal' },
-    { fromStopId: 'vil-mallareddy', toStopOrDestId: 'vil-badepalli', connectionId: 'seg-mal-bad' },
-    { fromStopId: 'vil-badepalli', toStopOrDestId: 'inst-ghss', connectionId: 'seg-bad-ghss' }
+    { fromStopId: 'vil-gurupura', toStopOrDestId: 'vil-ganjimutt', connectionId: 'seg-guru-ganji' },
+    { fromStopId: 'vil-ganjimutt', toStopOrDestId: 'vil-farangipete', connectionId: 'seg-ganji-far' },
+    { fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-aloysius', connectionId: 'seg-far-aloysius' }
   ]
 };
 
@@ -499,3 +499,4 @@ export function computeAllocationDiff(
     newlyAssigned
   };
 }
+

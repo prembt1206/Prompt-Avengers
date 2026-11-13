@@ -114,8 +114,8 @@ export const RoadConnectionsList: React.FC<RoadConnectionsListProps> = ({
                           onClick={() => {
                             setModalConn(conn);
                             setReason(
-                              conn.id === 'seg-siri-mal'
-                                ? 'River causeway submerged under 2ft runoff'
+                              conn.id === 'seg-guru-ganji'
+                                ? 'Phalguni (Gurupura) river causeway submerged under 2.5ft flood runoff'
                                 : 'Culvert damage & road washout'
                             );
                           }}
@@ -180,3 +180,4 @@ export const RoadConnectionsList: React.FC<RoadConnectionsListProps> = ({
     </div>
   );
 };
+

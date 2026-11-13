@@ -157,3 +157,4 @@ export const AllocationSummary: React.FC<AllocationSummaryProps> = ({
     </div>
   );
 };
+

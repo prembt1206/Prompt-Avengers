@@ -11,3 +11,4 @@ export const NoticeBanner: React.FC = () => {
     </div>
   );
 };
+

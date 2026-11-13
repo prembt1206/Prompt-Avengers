@@ -52,7 +52,7 @@ export const DemoScriptModal: React.FC<DemoScriptModalProps> = ({
             <div className="step-content" style={{ flex: 1 }}>
               <h4>Student Transport Request Flow</h4>
               <p>
-                Students from 5 fictional villages submit transport requests to 2 institutions (Govt HSS & Polytechnic). 17 synthetic requests are seeded, and you can submit custom requests via the Student portal.
+                Students from 5 rural hamlets around Mangaluru (Pavoor, Farangipete, Kalladka, Ganjimutt, Gurupura) submit transport requests to 2 landmark Mangaluru institutions (St. Aloysius School & Karnataka Polytechnic KPT). 17 synthetic requests are seeded, and you can submit custom requests via the Student portal.
               </p>
               <div style={{ marginTop: '8px' }}>
                 <button
@@ -187,3 +187,4 @@ export const DemoScriptModal: React.FC<DemoScriptModalProps> = ({
     </div>
   );
 };
+

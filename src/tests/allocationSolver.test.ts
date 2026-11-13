@@ -7,7 +7,7 @@ import {
 } from '../models/seedData';
 import { VehicleTrip, TransportConnection, StudentRequest } from '../types';
 
-describe('RouteLess Pure Allocation Solver', () => {
+describe('RouteLess Pure Allocation Solver (Mangaluru Suburban Region)', () => {
   it('should run deterministic baseline allocation respecting vehicle capacities', () => {
     const result1 = runAllocationSolver(
       SEEDED_STUDENT_REQUESTS,
@@ -48,10 +48,10 @@ describe('RouteLess Pure Allocation Solver', () => {
   });
 
   it('should handle vehicle cancellation with feasible alternatives for some and honest unmet explanations for others', () => {
-    // Cancel Trip 01 (Yellow Mini-Bus serving Kallupatti & Badepalli -> Govt HSS)
+    // Cancel Trip 01 (KSRTC Mini-Bus serving Pavoor & Farangipete -> St. Aloysius)
     const cancelledTrips: VehicleTrip[] = SEEDED_VEHICLE_TRIPS.map(trip =>
       trip.id === 'trip-01'
-        ? { ...trip, isCancelled: true, cancelReason: 'Radiator crack & engine overheat' }
+        ? { ...trip, isCancelled: true, cancelReason: 'Depot radiator crack & cooling failure' }
         : trip
     );
 
@@ -66,10 +66,10 @@ describe('RouteLess Pure Allocation Solver', () => {
     const trip1Assignments = recoveryResult.assignments.filter(a => a.tripId === 'trip-01');
     expect(trip1Assignments.length).toBe(0);
 
-    // Kallupatti has no alternative vehicle -> all Kallupatti students must be unmet
-    const kallupattiRequests = SEEDED_STUDENT_REQUESTS.filter(r => r.originVillageId === 'vil-kallupatti');
-    kallupattiRequests.forEach(kReq => {
-      const unmet = recoveryResult.unmetRequests.find(u => u.requestId === kReq.id);
+    // Pavoor has no alternative vehicle -> all Pavoor students must be unmet
+    const pavoorRequests = SEEDED_STUDENT_REQUESTS.filter(r => r.originVillageId === 'vil-pavoor');
+    pavoorRequests.forEach(pReq => {
+      const unmet = recoveryResult.unmetRequests.find(u => u.requestId === pReq.id);
       expect(unmet).toBeDefined();
       expect(unmet?.primaryReasonCode).toBe('TRIP_CANCELLED');
       expect(unmet?.honestExplanation).toContain('CANCELLED');
@@ -87,11 +87,11 @@ describe('RouteLess Pure Allocation Solver', () => {
     expect(diff.displacedAssignments.length).toBeGreaterThan(0);
   });
 
-  it('should handle blocked route segment (causeway flooding)', () => {
-    // Block Sirikonda causeway (seg-siri-mal)
+  it('should handle blocked route segment (Gurupura causeway flooding)', () => {
+    // Block Gurupura causeway (seg-guru-ganji)
     const blockedConnections: TransportConnection[] = SEEDED_CONNECTIONS.map(conn =>
-      conn.id === 'seg-siri-mal'
-        ? { ...conn, isBlocked: true, blockedReason: 'River causeway submerged under 2 feet of flash floodwater' }
+      conn.id === 'seg-guru-ganji'
+        ? { ...conn, isBlocked: true, blockedReason: 'Phalguni river causeway submerged under 2.5ft flood runoff' }
         : conn
     );
 
@@ -102,18 +102,18 @@ describe('RouteLess Pure Allocation Solver', () => {
       'RECOVERY'
     );
 
-    // All Sirikonda students attempting to reach Govt HSS via Trip 03 must be unmet due to route block
-    const sirikondaRequests = SEEDED_STUDENT_REQUESTS.filter(r => r.originVillageId === 'vil-sirikonda');
-    sirikondaRequests.forEach(sReq => {
-      const unmet = result.unmetRequests.find(u => u.requestId === sReq.id);
+    // All Gurupura students attempting to reach St. Aloysius via Trip 03 must be unmet due to route block
+    const gurupuraRequests = SEEDED_STUDENT_REQUESTS.filter(r => r.originVillageId === 'vil-gurupura');
+    gurupuraRequests.forEach(gReq => {
+      const unmet = result.unmetRequests.find(u => u.requestId === gReq.id);
       expect(unmet).toBeDefined();
       expect(unmet?.primaryReasonCode).toBe('ROUTE_BLOCKED');
       expect(unmet?.honestExplanation).toContain('impassable');
     });
 
-    // Mallareddy and Badepalli students can still board Trip 03 because their legs are not blocked
-    const mallareddyAssigned = result.assignments.filter(a => a.pickupVillageId === 'vil-mallareddy');
-    expect(mallareddyAssigned.length).toBeGreaterThan(0);
+    // Ganjimutt and Farangipete students can still board Trip 03 because their legs are not blocked
+    const ganjimuttAssigned = result.assignments.filter(a => a.pickupVillageId === 'vil-ganjimutt');
+    expect(ganjimuttAssigned.length).toBeGreaterThan(0);
   });
 
   it('should immediately update allocations when vehicle capacity is dynamically edited', () => {
@@ -142,11 +142,11 @@ describe('RouteLess Pure Allocation Solver', () => {
         id: 'req-early-01',
         studentName: 'Early Bird',
         gradeOrStream: 'Grade 10',
-        originVillageId: 'vil-kallupatti',
-        originVillageName: 'Kallupatti',
-        destinationInstitutionId: 'inst-ghss',
-        destinationInstitutionName: 'Govt Higher Secondary School',
-        destinationName: 'Govt Higher Secondary School',
+        originVillageId: 'vil-pavoor',
+        originVillageName: 'Pavoor Riverine Fringe',
+        destinationInstitutionId: 'inst-aloysius',
+        destinationInstitutionName: 'St. Aloysius High School & PU College',
+        destinationName: 'St. Aloysius High School & PU College',
         requiredArrivalTime: '07:45', // Trip 01 arrives at 08:15!
         priorityCategory: 'CRITICAL_EXAM',
         submissionTimestamp: '2026-11-13T06:00:00Z'

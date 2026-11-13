@@ -21,12 +21,12 @@ import {
 } from '../models/seedData';
 
 const KEYS = {
-  REQUESTS: 'routeless_demo_requests_v1',
-  TRIPS: 'routeless_demo_trips_v1',
-  CONNECTIONS: 'routeless_demo_connections_v1',
-  BASELINE: 'routeless_demo_baseline_v1',
-  RECOVERY: 'routeless_demo_recovery_v1',
-  USER_VIEW: 'routeless_demo_user_view_v1'
+  REQUESTS: 'routeless_mangaluru_requests_v2',
+  TRIPS: 'routeless_mangaluru_trips_v2',
+  CONNECTIONS: 'routeless_mangaluru_connections_v2',
+  BASELINE: 'routeless_mangaluru_baseline_v2',
+  RECOVERY: 'routeless_mangaluru_recovery_v2',
+  USER_VIEW: 'routeless_mangaluru_user_view_v2'
 };
 
 export const StorageService = {
@@ -168,3 +168,4 @@ export const StorageService = {
     };
   }
 };
+
