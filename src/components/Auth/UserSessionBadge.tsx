@@ -116,3 +116,4 @@ export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
     </div>
   );
 };
+

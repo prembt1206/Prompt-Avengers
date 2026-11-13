@@ -104,3 +104,4 @@ describe('Supabase Integration & Architecture Verification Suite', () => {
     expect(seedContent).toContain('Cruiser 04 — Kudla Community Rural Cruiser');
   });
 });
+

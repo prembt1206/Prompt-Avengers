@@ -151,3 +151,4 @@ VALUES
   ('a0000000-0000-0000-0000-000000000001', 'req-guru-02', 'Mohammed Shafi', 'Grade 10', 'vil-gurupura', 'Gurupura Riverbank', 'inst-aloysius', 'St. Aloysius High School & PU College', '08:15', 'CRITICAL_EXAM', true, '08:30', 'English Pre-Final Examination', 19, false, 'English Pre-Final Exam'),
   ('a0000000-0000-0000-0000-000000000001', 'req-guru-03', 'Swathi Salian', 'Grade 9', 'vil-gurupura', 'Gurupura Riverbank', 'inst-aloysius', 'St. Aloysius High School & PU College', '08:30', 'REGULAR_ATTENDANCE', false, null, null, 20, false, 'Secondary science lesson')
 ON CONFLICT (scenario_id, id) DO NOTHING;
+
