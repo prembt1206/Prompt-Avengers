@@ -79,23 +79,22 @@ body {
 
 /* Notice Banner */
 .notice-banner {
-  background: #fff3cd;
-  border-bottom: 1px solid #ffeeba;
-  color: #856404;
-  padding: 8px 18px;
-  font-size: 0.825rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e2e4e8;
+  color: #686974;
+  padding: 6px 16px;
+  font-size: 0.775rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   text-align: center;
-  font-weight: 500;
 }
 
 .notice-banner strong {
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  color: #b45309;
+  letter-spacing: 0.02em;
 }
 
 /* Navbar */

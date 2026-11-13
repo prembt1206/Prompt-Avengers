@@ -623,67 +623,54 @@ export const App: React.FC = () => {
             }}
             onNavigateHome={() => handleViewChange('COORDINATOR')}
           />
-        ) : (
-          <>
-            {/* Skyscanner Crisis Protocol Promotional Graphic Banner */}
-            <SkyscannerCrisisBanner
-              crisisState={crisisState}
-              onActivateCrisis={handleActivateExamCrisis}
-              onGenerateRecovery={handleGenerateCrisisRecovery}
-              onResetCrisis={handleResetExamCrisis}
-              onViewAudit={() => handleViewChange('COORDINATOR')}
-            />
+        ) : currentView === 'STUDENT' ? (
+          <div className="student-view-container">
+            <div className="view-header" style={{ marginBottom: '18px' }}>
+              <h2 className="view-title" style={{ fontSize: '1.4rem' }}>Student Transport Request Portal</h2>
+              <p className="view-subtitle" style={{ fontSize: '0.85rem' }}>
+                Request guaranteed morning transport from rural Mangalore villages to St. Aloysius or KPT. Fictional simulation.
+              </p>
+            </div>
 
-            {currentView === 'STUDENT' ? (
-              <div className="student-view-container">
-                <div className="view-header">
-                  <h2 className="view-title">Student Transport Request Portal</h2>
-                  <p className="view-subtitle">
-                    Request a guaranteed seat from rural Mangalore taluq villages to St. Aloysius or KPT. Fictional demo — no personal data collected.
-                  </p>
-                </div>
-
-                <div className="student-layout">
-                  <StudentRequestForm
-                    villages={villages}
-                    institutions={institutions}
-                    onSubmitRequest={handleSubmitStudentRequest}
-                  />
-                  <StudentRequestList
-                    requests={requests}
-                    latestAllocation={currentResult}
-                  />
-                </div>
-              </div>
-            ) : (
-              <CoordinatorDashboard
+            <div className="student-layout">
+              <StudentRequestForm
                 villages={villages}
                 institutions={institutions}
-                connections={connections}
-                trips={trips}
-                requests={requests}
-                currentResult={currentResult}
-                baselineResult={baselineResult}
-                recoveryResult={recoveryResult}
-                stateBResult={stateBResult}
-                crisisState={crisisState}
-                crisisMetrics={crisisMetrics}
-                onRunBaseline={handleRunBaseline}
-                onRunRecovery={handleRunRecovery}
-                onActivateExamCrisis={handleActivateExamCrisis}
-                onGenerateCrisisRecovery={handleGenerateCrisisRecovery}
-                onResetExamCrisis={handleResetExamCrisis}
-                onUpdateTripCapacity={handleUpdateTripCapacity}
-                onToggleTripCancellation={handleToggleTripCancellation}
-                onToggleConnectionBlocked={handleToggleConnectionBlocked}
-                onApplyScenario={handleApplyScenario}
+                onSubmitRequest={handleSubmitStudentRequest}
               />
-            )}
-
-            {/* Skyscanner 2-Column Accordion FAQ Section */}
-            <SkyscannerFaq />
-          </>
+              <StudentRequestList
+                requests={requests}
+                latestAllocation={currentResult}
+              />
+            </div>
+          </div>
+        ) : (
+          <CoordinatorDashboard
+            villages={villages}
+            institutions={institutions}
+            connections={connections}
+            trips={trips}
+            requests={requests}
+            currentResult={currentResult}
+            baselineResult={baselineResult}
+            recoveryResult={recoveryResult}
+            stateBResult={stateBResult}
+            crisisState={crisisState}
+            crisisMetrics={crisisMetrics}
+            onRunBaseline={handleRunBaseline}
+            onRunRecovery={handleRunRecovery}
+            onActivateExamCrisis={handleActivateExamCrisis}
+            onGenerateCrisisRecovery={handleGenerateCrisisRecovery}
+            onResetExamCrisis={handleResetExamCrisis}
+            onUpdateTripCapacity={handleUpdateTripCapacity}
+            onToggleTripCancellation={handleToggleTripCancellation}
+            onToggleConnectionBlocked={handleToggleConnectionBlocked}
+            onApplyScenario={handleApplyScenario}
+          />
         )}
+
+        {/* Collapsible FAQ at bottom */}
+        {currentView !== 'SIGNUP' && <SkyscannerFaq />}
       </main>
 
       {/* Step-by-step evaluator walkthrough script modal */}
