@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { Send, CheckCircle2, AlertCircle, Award, Clock } from 'lucide-react';
+import {
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  Award,
+  Clock,
+  MapPin,
+  ArrowRightLeft,
+  Calendar,
+  School,
+  Bus,
+  UserCheck
+} from 'lucide-react';
 import { StudentRequest, Village, Institution, PriorityCategory } from '../../types';
 import { EXAM_ARRIVAL_BUFFER_MINUTES } from '../../models/seedData';
 
@@ -15,7 +27,7 @@ export const StudentRequestForm: React.FC<StudentRequestFormProps> = ({
   onSubmitRequest
 }) => {
   const [studentName, setStudentName] = useState('');
-  const [gradeOrStream, setGradeOrStream] = useState('Grade 10');
+  const [gradeOrStream, setGradeOrStream] = useState('Grade 10 (SSLC)');
   const [originVillageId, setOriginVillageId] = useState(villages[0]?.id || '');
   const [destinationInstitutionId, setDestinationInstitutionId] = useState(institutions[0]?.id || '');
   
@@ -94,7 +106,7 @@ export const StudentRequestForm: React.FC<StudentRequestFormProps> = ({
 
     onSubmitRequest(newRequest);
     setSubmittedBanner(
-      `✓ Transport request submitted for ${studentName.trim()} (${isExamStudent ? 'Exam Candidate: ' + examSubject : 'Regular'})! Destination: ${selectedInst?.name}.`
+      `✓ Guaranteed seat request submitted for ${studentName.trim()} (${isExamStudent ? 'Exam Candidate' : 'Regular'}) to ${selectedInst?.name}!`
     );
     setStudentName('');
     setNotes('');
@@ -105,63 +117,201 @@ export const StudentRequestForm: React.FC<StudentRequestFormProps> = ({
   };
 
   return (
-    <div className="card">
-      <div className="card-header" style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+    <div className="card" style={{ overflow: 'visible' }}>
+      <div className="card-header" style={{ background: '#f8f9fa', borderBottom: '1px solid #e2e4e8' }}>
         <h3 className="card-title">
-          <Send size={18} className="text-teal" />
-          Request Morning Transport to College / School
+          <Bus size={18} color="#0770e3" />
+          Request Rural Morning Transport to College / School
         </h3>
-        <span className="badge badge-teal">Student & Parent Portal</span>
+        <span className="badge badge-primary">Student & Parent Portal</span>
       </div>
+
       <div className="card-body">
         {submittedBanner && (
-          <div style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', color: '#065f46', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={18} />
-            <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{submittedBanner}</span>
+          <div
+            style={{
+              background: '#e6f6f5',
+              border: '1px solid #00a698',
+              color: '#05655d',
+              padding: '12px 18px',
+              borderRadius: '8px',
+              marginBottom: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+          >
+            <CheckCircle2 size={20} color="#00a698" />
+            <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>{submittedBanner}</span>
           </div>
         )}
 
         {validationError && (
-          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              background: '#fde8e8',
+              border: '1px solid #fecaca',
+              color: '#901b1b',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              marginBottom: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
             <AlertCircle size={16} />
             <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{validationError}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Official Exam Hurdle Question */}
+          {/* Skyscanner Segmented Booking Card Container */}
           <div
             style={{
-              background: isExamStudent ? '#fffbeb' : '#f8fafc',
-              border: isExamStudent ? '2px solid #f59e0b' : '1px solid #cbd5e1',
-              borderRadius: '10px',
-              padding: '16px',
+              background: '#ffffff',
+              border: '1px solid #d2d8e0',
+              borderRadius: '12px',
+              boxShadow: '0 4px 16px rgba(5, 32, 60, 0.08)',
+              padding: '4px',
+              marginBottom: '20px'
+            }}
+          >
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'stretch' }}>
+              {/* Pickup Village Segment */}
+              <div
+                style={{
+                  flex: '1 1 200px',
+                  padding: '12px 16px',
+                  borderRight: '1px solid #e2e4e8',
+                  position: 'relative'
+                }}
+              >
+                <label className="segment-label">
+                  <MapPin size={13} color="#0770e3" />
+                  Origin (Pickup Village)
+                </label>
+                <select
+                  className="segment-select"
+                  value={originVillageId}
+                  onChange={e => setOriginVillageId(e.target.value)}
+                >
+                  {villages.map(v => (
+                    <option key={v.id} value={v.id}>
+                      {v.name} ({v.id.toUpperCase().slice(-4)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Destination Institution Segment */}
+              <div
+                style={{
+                  flex: '1 1 220px',
+                  padding: '12px 16px',
+                  borderRight: '1px solid #e2e4e8'
+                }}
+              >
+                <label className="segment-label">
+                  <School size={13} color="#00a698" />
+                  Destination (Institution)
+                </label>
+                <select
+                  className="segment-select"
+                  value={destinationInstitutionId}
+                  onChange={e => setDestinationInstitutionId(e.target.value)}
+                >
+                  {institutions.map(i => (
+                    <option key={i.id} value={i.id}>
+                      {i.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Student Name Segment */}
+              <div
+                style={{
+                  flex: '1 1 180px',
+                  padding: '12px 16px',
+                  borderRight: '1px solid #e2e4e8'
+                }}
+              >
+                <label className="segment-label">
+                  <UserCheck size={13} color="#0770e3" />
+                  Student Full Name *
+                </label>
+                <input
+                  type="text"
+                  className="segment-input"
+                  placeholder="e.g. Prathiksha Poojary"
+                  value={studentName}
+                  onChange={e => setStudentName(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Grade / Stream Segment */}
+              <div
+                style={{
+                  flex: '1 1 180px',
+                  padding: '12px 16px'
+                }}
+              >
+                <label className="segment-label">
+                  <Award size={13} color="#ff7b59" />
+                  Grade / Course
+                </label>
+                <select
+                  className="segment-select"
+                  value={gradeOrStream}
+                  onChange={e => setGradeOrStream(e.target.value)}
+                >
+                  <option value="Grade 10 (SSLC)">Grade 10 (SSLC Board)</option>
+                  <option value="Grade 12 - Science (PUC)">Grade 12 — PU II Science</option>
+                  <option value="Grade 12 - Commerce (PUC)">Grade 12 — PU II Commerce</option>
+                  <option value="Grade 11 - Science (PUC)">Grade 11 — PU I Science</option>
+                  <option value="Diploma Mechanical Year 2 (KPT)">Diploma Mechanical (KPT)</option>
+                  <option value="Diploma Computer Science Year 2 (KPT)">Diploma CS (KPT)</option>
+                  <option value="Grade 9 (Secondary)">Grade 9 (Secondary)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Official Exam Hurdle Question Banner */}
+          <div
+            style={{
+              background: isExamStudent ? '#fff1ed' : '#f8f9fa',
+              border: isExamStudent ? '2px solid #ff7b59' : '1px solid #d2d8e0',
+              borderRadius: '12px',
+              padding: '18px 22px',
               marginBottom: '20px',
               transition: 'all 0.2s ease'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Award size={20} color={isExamStudent ? '#d97706' : '#64748b'} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Award size={22} color={isExamStudent ? '#e05e3a' : '#686974'} />
                 <div>
-                  <label htmlFor="exam-toggle" style={{ fontWeight: 700, fontSize: '0.95rem', color: isExamStudent ? '#92400e' : '#334155', cursor: 'pointer' }}>
+                  <label htmlFor="exam-toggle" style={{ fontWeight: 800, fontSize: '1rem', color: isExamStudent ? '#a83515' : '#111215', cursor: 'pointer' }}>
                     Do you have an examination today?
                   </label>
-                  <p style={{ fontSize: '0.775rem', color: isExamStudent ? '#78350f' : '#64748b', margin: 0 }}>
+                  <p style={{ fontSize: '0.8rem', color: isExamStudent ? '#a83515' : '#686974', margin: 0 }}>
                     Exam candidates receive top priority during transport shortages and vehicle breakdowns.
                   </p>
                 </div>
               </div>
 
-              <label className="switch-toggle" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
                   id="exam-toggle"
                   type="checkbox"
                   checked={isExamStudent}
                   onChange={e => handleToggleExam(e.target.checked)}
-                  style={{ width: '18px', height: '18px', accentColor: '#d97706', cursor: 'pointer' }}
+                  style={{ width: '18px', height: '18px', accentColor: '#ff7b59', cursor: 'pointer' }}
                 />
-                <span style={{ fontWeight: 600, fontSize: '0.85rem', color: isExamStudent ? '#d97706' : '#64748b' }}>
+                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: isExamStudent ? '#a83515' : '#686974' }}>
                   {isExamStudent ? 'YES — Exam Candidate' : 'NO — Regular Class'}
                 </span>
               </label>
@@ -169,10 +319,10 @@ export const StudentRequestForm: React.FC<StudentRequestFormProps> = ({
 
             {/* If Exam candidate, show validated fields */}
             {isExamStudent && (
-              <div style={{ marginTop: '16px', borderTop: '1px solid #fde68a', paddingTop: '14px' }}>
+              <div style={{ marginTop: '16px', borderTop: '1px solid #ffd5cc', paddingTop: '16px' }}>
                 <div className="grid-2">
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ color: '#92400e' }}>
+                    <label className="form-label" style={{ color: '#a83515', fontWeight: 700 }}>
                       Examination Subject / Paper Title *
                     </label>
                     <input
@@ -186,7 +336,7 @@ export const StudentRequestForm: React.FC<StudentRequestFormProps> = ({
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ color: '#92400e' }}>
+                    <label className="form-label" style={{ color: '#a83515', fontWeight: 700 }}>
                       Exam Start Time *
                     </label>
                     <input
@@ -199,144 +349,44 @@ export const StudentRequestForm: React.FC<StudentRequestFormProps> = ({
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#92400e', marginTop: '10px' }}>
-                  <Clock size={13} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#a83515', marginTop: '12px' }}>
+                  <Clock size={15} />
                   <span>
-                    <strong>Arrival Buffer Policy:</strong> Exam candidates require a mandatory <strong>{EXAM_ARRIVAL_BUFFER_MINUTES}-minute arrival buffer</strong> before exam commencement (Required Arrival Deadline: <strong>{requiredArrivalTime}</strong>).
+                    <strong>Mandatory Arrival Buffer:</strong> Exam candidates require a mandatory <strong>{EXAM_ARRIVAL_BUFFER_MINUTES}-minute arrival safety buffer</strong> before the exam bell (Must reach institution by <strong>{requiredArrivalTime}</strong>).
                   </span>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Student Full Name *</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="e.g. Prathiksha Poojary"
-                value={studentName}
-                onChange={e => setStudentName(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Course / Stream / Grade *</label>
-              <select
-                className="form-select"
-                value={gradeOrStream}
-                onChange={e => setGradeOrStream(e.target.value)}
-              >
-                <option value="Grade 10 (SSLC)">Grade 10 (Karnataka SSLC Board Candidate)</option>
-                <option value="Grade 12 - Science (PUC)">Grade 12 — PU II Science (State Board)</option>
-                <option value="Grade 12 - Commerce (PUC)">Grade 12 — PU II Commerce</option>
-                <option value="Grade 11 - Science (PUC)">Grade 11 — PU I Science</option>
-                <option value="Grade 11 - Arts (PUC)">Grade 11 — PU I Arts</option>
-                <option value="Grade 9 (Secondary)">Grade 9 (Secondary School)</option>
-                <option value="Diploma Mechanical Year 2 (KPT)">Diploma Mechanical Year 2 (KPT Kadri)</option>
-                <option value="Diploma Civil Year 1 (KPT)">Diploma Civil Year 1 (KPT Kadri)</option>
-                <option value="Diploma EEE Year 1 (KPT)">Diploma EEE Year 1 (KPT Kadri)</option>
-                <option value="Diploma Computer Science Year 2 (KPT)">Diploma Computer Science Year 2 (KPT Kadri)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Origin Village / Rural Hamlet *</label>
-              <select
-                className="form-select"
-                value={originVillageId}
-                onChange={e => setOriginVillageId(e.target.value)}
-              >
-                {villages.map(v => (
-                  <option key={v.id} value={v.id}>
-                    {v.name} ({v.connectivityType})
-                  </option>
-                ))}
-              </select>
-              <p className="form-hint">
-                {villages.find(v => v.id === originVillageId)?.description}
-              </p>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Destination Educational Institution *</label>
-              <select
-                className="form-select"
-                value={destinationInstitutionId}
-                onChange={e => {
-                  setDestinationInstitutionId(e.target.value);
-                  const inst = institutions.find(i => i.id === e.target.value);
-                  if (inst && !isExamStudent) {
-                    setRequiredArrivalTime(inst.schoolStartTime);
-                  }
-                }}
-              >
-                {institutions.map(inst => (
-                  <option key={inst.id} value={inst.id}>
-                    {inst.name} (Classes start {inst.schoolStartTime})
-                  </option>
-                ))}
-              </select>
-              <p className="form-hint">
-                {institutions.find(i => i.id === destinationInstitutionId)?.address}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">
-                Required Arrival Deadline {isExamStudent && '(Calculated with 15m Buffer)'}
-              </label>
-              <input
-                type="time"
-                className="form-control"
-                value={requiredArrivalTime}
-                onChange={e => setRequiredArrivalTime(e.target.value)}
-                required
-              />
-              <p className="form-hint">
-                Vehicles arriving after this time are flagged as late and not counted as on-time.
-              </p>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Academic Priority Category *</label>
-              <select
-                className="form-select"
-                value={priorityCategory}
-                onChange={e => setPriorityCategory(e.target.value as PriorityCategory)}
-                disabled={isExamStudent}
-              >
-                <option value="CRITICAL_EXAM">Critical Exam / Board Examination (Highest Priority)</option>
-                <option value="LAB_PRACTICAL">Mandatory Laboratory / Workshop Practical</option>
-                <option value="REGULAR_ATTENDANCE">Regular Daily Classroom Attendance</option>
-              </select>
-              <p className="form-hint">
-                {isExamStudent ? 'Locked to Highest Priority because Exam is active.' : 'Determines triage rank during seat shortages.'}
-              </p>
-            </div>
-          </div>
-
+          {/* Optional notes */}
           <div className="form-group">
-            <label className="form-label">Special Transport Notes / Medical or Tool Transport (Optional)</label>
+            <label className="form-label">Special Transport Notes (Optional)</label>
             <input
               type="text"
               className="form-control"
-              placeholder="e.g. Carrying lab drafting board; needs early boarding"
+              placeholder="e.g. Near Gurupura bridge pickup point / carrying drafting board"
               value={notes}
               onChange={e => setNotes(e.target.value)}
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-            <button type="submit" className="btn btn-teal btn-lg">
-              <Send size={16} />
-              Submit Transport Request
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button
+              type="submit"
+              className="btn btn-primary btn-lg"
+              style={{
+                background: '#0770e3',
+                borderColor: '#0770e3',
+                fontWeight: 800,
+                padding: '14px 32px',
+                fontSize: '1rem',
+                borderRadius: '8px',
+                boxShadow: '0 4px 14px rgba(7, 112, 227, 0.35)'
+              }}
+            >
+              <Send size={18} />
+              <span>Submit Transport Request</span>
             </button>
           </div>
         </form>

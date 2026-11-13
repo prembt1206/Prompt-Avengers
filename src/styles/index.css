@@ -1,49 +1,59 @@
 :root {
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   
-  /* Brand palette: Deep Teal & Marine Navy */
-  --color-header-bg: #042f2e; /* Deep Forest Teal */
-  --color-header-border: #0f766e;
-  --color-page-bg: #f3f6f8; /* Soft tinted slate/sage canvas */
+  /* Skyscanner Signature Palette */
+  --color-sky-navy: #05203c;        /* Skyscanner Midnight Navy */
+  --color-sky-dark: #021a36;        /* Skyscanner Deepest Navy */
+  --color-sky-card: #0b2a4a;        /* Skyscanner Nav Card Navy */
+  --color-sky-blue: #0770e3;        /* Skyscanner Electric Blue */
+  --color-sky-blue-hover: #0056b3;  /* Skyscanner Hover Blue */
+  --color-sky-blue-soft: #e8f3fe;   /* Skyscanner Soft Blue Tint */
+  --color-sky-teal: #00a698;        /* Skyscanner Mint / Teal Accent */
+  --color-sky-teal-soft: #e6f6f5;
   
-  --color-primary: #0d9488; /* Teal 600 */
-  --color-primary-dark: #0f766e; /* Teal 700 */
-  --color-primary-light: #14b8a6; /* Teal 500 */
-  --color-primary-soft: #f0fdfa; /* Teal 50 */
+  --color-header-bg: var(--color-sky-navy);
+  --color-header-border: #0b2a4a;
+  --color-page-bg: #f1f2f6;          /* Skyscanner Clean Slate Canvas */
+  
+  --color-primary: var(--color-sky-blue);
+  --color-primary-dark: var(--color-sky-blue-hover);
+  --color-primary-light: #388bfd;
+  --color-primary-soft: var(--color-sky-blue-soft);
   
   --color-surface: #ffffff;
-  --color-surface-soft: #f8fafc;
-  --color-surface-hover: #f1f5f9;
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
-  --color-text-main: #0f172a;
-  --color-text-muted: #64748b;
-  --color-text-light: #94a3b8;
+  --color-surface-soft: #f8f9fa;
+  --color-surface-hover: #f1f2f6;
+  --color-border: #e2e4e8;
+  --color-border-strong: #c8ccd2;
+  --color-text-main: #111215;
+  --color-text-muted: #686974;
+  --color-text-light: #8f929d;
   
-  --color-success: #10b981;
-  --color-success-bg: #ecfdf5;
-  --color-success-text: #065f46;
+  --color-success: #00a698;
+  --color-success-bg: #e6f6f5;
+  --color-success-text: #05655d;
   
-  --color-warning: #f59e0b;
-  --color-warning-dark: #d97706;
-  --color-warning-bg: #fffbeb;
-  --color-warning-text: #92400e;
+  --color-warning: #ff7b59;
+  --color-warning-dark: #e05e3a;
+  --color-warning-bg: #fff1ed;
+  --color-warning-text: #a83515;
   
-  --color-danger: #ef4444;
-  --color-danger-dark: #dc2626;
-  --color-danger-bg: #fef2f2;
-  --color-danger-text: #991b1b;
+  --color-danger: #d93b3b;
+  --color-danger-dark: #b82828;
+  --color-danger-bg: #fde8e8;
+  --color-danger-text: #901b1b;
 
-  --color-info: #0284c7;
-  --color-info-bg: #f0f9ff;
-  --color-info-text: #075985;
+  --color-info: #0770e3;
+  --color-info-bg: #e8f3fe;
+  --color-info-text: #004b9e;
 
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 18px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --radius-xl: 24px;
+  --shadow-sm: 0 1px 3px 0 rgba(5, 32, 60, 0.08);
+  --shadow-md: 0 4px 12px -2px rgba(5, 32, 60, 0.12), 0 2px 4px -2px rgba(5, 32, 60, 0.06);
+  --shadow-lg: 0 12px 28px -4px rgba(5, 32, 60, 0.16), 0 4px 8px -2px rgba(5, 32, 60, 0.08);
 }
 
 * {
@@ -69,10 +79,10 @@ body {
 
 /* Notice Banner */
 .notice-banner {
-  background: #fef3c7;
-  border-bottom: 1px solid #fde68a;
-  color: #78350f;
-  padding: 7px 16px;
+  background: #fff3cd;
+  border-bottom: 1px solid #ffeeba;
+  color: #856404;
+  padding: 8px 18px;
   font-size: 0.825rem;
   display: flex;
   align-items: center;
@@ -90,13 +100,13 @@ body {
 
 /* Navbar */
 .app-navbar {
-  background: var(--color-header-bg);
+  background: var(--color-sky-navy);
   color: #ffffff;
-  padding: 12px 28px;
+  padding: 12px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--color-header-border);
+  border-bottom: 1px solid #0b2a4a;
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -108,19 +118,19 @@ body {
 }
 
 .nav-logo-icon {
-  width: 38px;
-  height: 38px;
-  background: var(--color-primary);
+  width: 40px;
+  height: 40px;
+  background: var(--color-sky-blue);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.35);
+  box-shadow: 0 2px 8px rgba(7, 112, 227, 0.4);
 }
 
 .nav-title {
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #ffffff;
@@ -130,8 +140,8 @@ body {
 }
 
 .nav-tagline {
-  font-size: 0.8rem;
-  color: #99f6e4;
+  font-size: 0.82rem;
+  color: #a1b0cb;
   font-weight: 400;
 }
 
@@ -145,20 +155,20 @@ body {
 /* Mode Switcher Toggle */
 .mode-toggle-group {
   display: inline-flex;
-  background: #064e3b;
+  background: #0b2a4a;
   border-radius: var(--radius-sm);
   padding: 3px;
-  border: 1px solid #0f766e;
+  border: 1px solid #143e69;
 }
 
 .mode-toggle-btn {
-  padding: 6px 14px;
+  padding: 7px 16px;
   font-size: 0.85rem;
   font-weight: 600;
   border-radius: 4px;
   border: none;
   background: transparent;
-  color: #a7f3d0;
+  color: #c0cee8;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -167,16 +177,630 @@ body {
 }
 
 .mode-toggle-btn.active {
-  background: var(--color-primary);
+  background: var(--color-sky-blue);
   color: #ffffff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 .mode-toggle-btn:hover:not(.active) {
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
-/* Utility buttons */
+/* =========================================================
+   SKYSCANNER HERO SEARCH & ACTION BAR SYSTEM
+   ========================================================= */
+.skyscanner-hero-section {
+  background: var(--color-sky-navy);
+  color: #ffffff;
+  padding: 36px 32px 48px 32px;
+  position: relative;
+}
+
+.skyscanner-hero-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.skyscanner-headline {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin-bottom: 6px;
+  line-height: 1.15;
+}
+
+.skyscanner-subheadline {
+  font-size: 1.05rem;
+  color: #a1b0cb;
+  margin-bottom: 24px;
+}
+
+/* Pills above search bar (like "Return ▾", "Bags ▾") */
+.skyscanner-pill-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.skyscanner-pill {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skyscanner-pill:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.skyscanner-pill.active {
+  background: var(--color-sky-blue);
+  border-color: var(--color-sky-blue);
+}
+
+/* The Iconic White Segmented Search Bar */
+.skyscanner-search-container {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 30px rgba(2, 26, 54, 0.35);
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d2d8e0;
+}
+
+.search-segment {
+  flex: 1 1 200px;
+  padding: 12px 18px;
+  border-right: 1px solid #e2e4e8;
+  position: relative;
+  background: #ffffff;
+  transition: background 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.search-segment:hover {
+  background: #f8f9fa;
+}
+
+.search-segment:last-of-type {
+  border-right: none;
+}
+
+.segment-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #686974;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.segment-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111215;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.segment-select, .segment-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111215;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  padding: 2px 0;
+}
+
+/* Circular Swap Button overlapping segments */
+.segment-swap-btn {
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border: 1px solid #c8ccd2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-sky-blue);
+  cursor: pointer;
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+}
+
+.segment-swap-btn:hover {
+  background: var(--color-sky-blue-soft);
+  color: var(--color-sky-blue-hover);
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Skyscanner Primary Search Action Button */
+.search-action-segment {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.skyscanner-search-btn {
+  background: var(--color-sky-blue);
+  color: #ffffff;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 16px 28px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  min-width: 160px;
+  text-decoration: none;
+}
+
+.skyscanner-search-btn:hover {
+  background: var(--color-sky-blue-hover);
+  color: #ffffff;
+}
+
+/* Hero Checkbox options underneath search bar */
+.skyscanner-search-options {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.skyscanner-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.skyscanner-checkbox-label input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--color-sky-blue);
+  cursor: pointer;
+}
+
+/* =========================================================
+   SKYSCANNER QUICK NAVIGATION / 4 PILL CARDS
+   ========================================================= */
+.skyscanner-quick-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .skyscanner-quick-nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .skyscanner-quick-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quick-nav-card {
+  background: var(--color-sky-card);
+  border: 1px solid #143e69;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.quick-nav-card:hover {
+  background: #10365c;
+  border-color: var(--color-sky-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.quick-nav-card.active {
+  background: var(--color-sky-blue);
+  border-color: var(--color-sky-blue);
+}
+
+.quick-nav-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-nav-card.active .quick-nav-icon {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.quick-nav-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.quick-nav-sub {
+  font-size: 0.75rem;
+  color: #a1b0cb;
+}
+
+.quick-nav-card.active .quick-nav-sub {
+  color: #e8f3fe;
+}
+
+/* =========================================================
+   SKYSCANNER GRAPHIC / PROMO CRISIS BANNER
+   ========================================================= */
+.skyscanner-promo-banner {
+  background: linear-gradient(135deg, #05203c 0%, #0b3d68 100%);
+  border-radius: var(--radius-lg);
+  color: #ffffff;
+  padding: 32px 40px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.skyscanner-promo-content {
+  max-width: 680px;
+  z-index: 2;
+}
+
+.skyscanner-promo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 123, 89, 0.2);
+  color: #ff9d82;
+  border: 1px solid rgba(255, 123, 89, 0.4);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.skyscanner-promo-title {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.skyscanner-promo-desc {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.skyscanner-promo-btn {
+  background: #ffffff;
+  color: var(--color-sky-navy);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.skyscanner-promo-btn:hover {
+  background: #f1f2f6;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   SKYSCANNER FLIGHT TICKET / BOARDING PASS CARDS
+   ========================================================= */
+.ticket-card {
+  background: #ffffff;
+  border: 1px solid #e2e4e8;
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+  box-shadow: 0 1px 4px rgba(5, 32, 60, 0.06);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.ticket-card:hover {
+  border-color: #0770e3;
+  box-shadow: 0 6px 18px rgba(5, 32, 60, 0.12);
+  transform: translateY(-1px);
+}
+
+.ticket-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ticket-flight-segment {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1 1 360px;
+}
+
+.ticket-time-col {
+  text-align: left;
+}
+
+.ticket-time-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111215;
+}
+
+.ticket-station-code {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #686974;
+}
+
+.ticket-duration-bar {
+  flex: 1 1 140px;
+  text-align: center;
+  position: relative;
+}
+
+.ticket-duration-text {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #686974;
+  margin-bottom: 4px;
+}
+
+.ticket-route-line {
+  height: 2px;
+  background: #c8ccd2;
+  position: relative;
+  margin: 6px 0;
+}
+
+.ticket-route-line::before, .ticket-route-line::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-sky-blue);
+  position: absolute;
+  top: -2.5px;
+}
+
+.ticket-route-line::before { left: 0; }
+.ticket-route-line::after { right: 0; }
+
+.ticket-stops-text {
+  font-size: 0.72rem;
+  color: #00a698;
+  font-weight: 700;
+}
+
+.ticket-stops-text.detour {
+  color: #ff7b59;
+}
+
+.ticket-actions-col {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   SKYSCANNER ACCORDION FAQ SECTION
+   ========================================================= */
+.skyscanner-accordion-section {
+  background: #ffffff;
+  border: 1px solid #e2e4e8;
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  margin-top: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.skyscanner-accordion-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #111215;
+  margin-bottom: 8px;
+}
+
+.skyscanner-accordion-sub {
+  font-size: 0.9rem;
+  color: #686974;
+  margin-bottom: 24px;
+}
+
+.skyscanner-accordion-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 32px;
+}
+
+@media (max-width: 800px) {
+  .skyscanner-accordion-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skyscanner-faq-item {
+  border-bottom: 1px solid #e2e4e8;
+  padding: 14px 0;
+}
+
+.skyscanner-faq-header {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111215;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s ease;
+}
+
+.skyscanner-faq-header:hover {
+  color: var(--color-sky-blue);
+}
+
+.skyscanner-faq-body {
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-top: 8px;
+  padding-right: 12px;
+}
+
+/* =========================================================
+   SKYSCANNER MIDNIGHT NAVY FOOTER
+   ========================================================= */
+.skyscanner-footer {
+  background: var(--color-sky-dark);
+  color: #ffffff;
+  padding: 48px 32px 32px 32px;
+  margin-top: 48px;
+  border-top: 1px solid #0b2a4a;
+}
+
+.skyscanner-footer-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.skyscanner-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-bottom: 36px;
+}
+
+@media (max-width: 850px) {
+  .skyscanner-footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .skyscanner-footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-col-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-links a, .footer-links span {
+  font-size: 0.825rem;
+  color: #a1b0cb;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+.skyscanner-footer-bottom {
+  border-top: 1px solid #0e3359;
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: #7b8ba5;
+}
+
+/* Base buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -197,56 +821,57 @@ body {
 }
 
 .btn-teal, .btn-primary {
-  background: var(--color-primary);
+  background: var(--color-sky-blue);
   color: white;
-  border-color: var(--color-primary-dark);
+  border-color: var(--color-sky-blue);
 }
 .btn-teal:hover, .btn-primary:hover {
-  background: var(--color-primary-dark);
+  background: var(--color-sky-blue-hover);
+  border-color: var(--color-sky-blue-hover);
 }
 
 .btn-secondary {
   background: #ffffff;
-  color: #1e293b;
-  border-color: #cbd5e1;
+  color: #111215;
+  border-color: #d2d8e0;
 }
 .btn-secondary:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
+  background: #f8f9fa;
+  border-color: #b0b8c4;
 }
 
 .btn-danger {
-  background: var(--color-danger-dark);
+  background: var(--color-danger);
   color: white;
 }
 .btn-danger:hover {
-  background: #991b1b;
+  background: var(--color-danger-dark);
 }
 
 .btn-warning {
-  background: var(--color-warning-dark);
+  background: var(--color-warning);
   color: white;
 }
 .btn-warning:hover {
-  background: #92400e;
+  background: var(--color-warning-dark);
 }
 
 .btn-outline-danger {
   background: transparent;
-  color: var(--color-danger-dark);
+  color: var(--color-danger);
   border-color: #fca5a5;
 }
 .btn-outline-danger:hover {
-  background: #fef2f2;
+  background: var(--color-danger-bg);
 }
 
 .btn-sm {
-  padding: 5px 10px;
+  padding: 5px 12px;
   font-size: 0.775rem;
 }
 
 .btn-lg {
-  padding: 10px 22px;
+  padding: 12px 24px;
   font-size: 0.95rem;
   border-radius: var(--radius-md);
 }
@@ -254,10 +879,10 @@ body {
 /* Layout */
 .main-content {
   flex: 1;
-  max-width: 1400px;
+  max-width: 1350px;
   width: 100%;
   margin: 0 auto;
-  padding: 22px 28px;
+  padding: 24px 32px;
 }
 
 /* Card */
@@ -276,7 +901,7 @@ body {
 }
 
 .card-header {
-  padding: 14px 22px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--color-border);
   background: #ffffff;
   display: flex;
@@ -312,10 +937,10 @@ body {
   letter-spacing: 0.02em;
 }
 
-.badge-teal {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
-  border: 1px solid #99f6e4;
+.badge-teal, .badge-primary {
+  background: var(--color-sky-blue-soft);
+  color: var(--color-sky-blue-hover);
+  border: 1px solid #bae6fd;
 }
 
 .badge-info {
@@ -333,7 +958,7 @@ body {
 .badge-warning {
   background: var(--color-warning-bg);
   color: var(--color-warning-text);
-  border: 1px solid #fde68a;
+  border: 1px solid #ffd5cc;
 }
 
 .badge-danger {
@@ -384,7 +1009,7 @@ body {
   background: white;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 16px 20px;
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
@@ -402,7 +1027,7 @@ body {
 }
 
 .kpi-val {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: var(--color-text-main);
   line-height: 1.1;
@@ -436,10 +1061,10 @@ body {
 }
 
 .data-table th {
-  background: #f8fafc;
+  background: #f8f9fa;
   color: #475569;
   font-weight: 700;
-  padding: 11px 16px;
+  padding: 12px 18px;
   border-bottom: 2px solid var(--color-border);
   font-size: 0.785rem;
   text-transform: uppercase;
@@ -447,14 +1072,14 @@ body {
 }
 
 .data-table td {
-  padding: 12px 16px;
+  padding: 13px 18px;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-main);
   vertical-align: middle;
 }
 
 .data-table tr:hover td {
-  background: #f8fafc;
+  background: #f8f9fa;
 }
 
 /* Form controls */
@@ -472,7 +1097,7 @@ body {
 
 .form-control, .form-select {
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 14px;
   font-size: 0.9rem;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
@@ -483,30 +1108,14 @@ body {
 
 .form-control:focus, .form-select:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18);
+  border-color: var(--color-sky-blue);
+  box-shadow: 0 0 0 3px rgba(7, 112, 227, 0.18);
 }
 
 .form-hint {
   font-size: 0.775rem;
   color: var(--color-text-muted);
   margin-top: 4px;
-}
-
-/* Progress bar */
-.progress-bar-container {
-  width: 100%;
-  background: #e2e8f0;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 6px;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
 }
 
 /* Tab Navigation */
@@ -540,8 +1149,8 @@ body {
 }
 
 .tab-btn.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+  color: var(--color-sky-blue);
+  border-bottom-color: var(--color-sky-blue);
   font-weight: 700;
 }
 
@@ -549,8 +1158,8 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4, 47, 46, 0.7);
-  backdrop-filter: blur(3px);
+  background: rgba(2, 26, 54, 0.75);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -565,37 +1174,16 @@ body {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 35px -5px rgba(2, 26, 54, 0.35);
 }
 
-.modal-header {
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.modal-body {
-  padding: 24px;
-}
-
-.modal-footer {
-  padding: 14px 24px;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  background: #f8fafc;
-}
-
-/* Animations & Motion */
+/* Animations */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4);
+    box-shadow: 0 0 0 0 rgba(7, 112, 227, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(217, 119, 6, 0);
+    box-shadow: 0 0 0 8px rgba(7, 112, 227, 0);
   }
 }
 
@@ -626,24 +1214,16 @@ body {
   animation: bypassPulse 1.8s ease-in-out infinite;
 }
 
-/* Bus motion keyframe along bypass */
 @keyframes busMove {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(-10px, -5px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-10px, -5px); }
+  100% { transform: translate(0, 0); }
 }
 
 .bus-motion-element {
   animation: busMove 3s ease-in-out infinite;
 }
 
-/* Accessibility: Respect Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -651,14 +1231,10 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .pulse-glow, .road-blocked-anim, .road-bypass-anim, .bus-motion-element {
-    animation: none !important;
-  }
 }
 
-/* Terminal log window */
 .log-terminal {
-  background: #042f2e;
+  background: var(--color-sky-navy);
   color: #e2e8f0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.8rem;
@@ -676,7 +1252,7 @@ body {
 }
 
 .log-time {
-  color: #5eead4;
+  color: #38bdf8;
   flex-shrink: 0;
 }
 
@@ -686,7 +1262,7 @@ body {
 }
 
 .log-level-INFO {
-  color: #a3e635;
+  color: #4ade80;
 }
 
 .log-level-WARNING {
@@ -696,13 +1272,4 @@ body {
 .log-level-ALERT {
   color: #f87171;
   font-weight: bold;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
 }

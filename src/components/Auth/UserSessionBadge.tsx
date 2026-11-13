@@ -24,9 +24,9 @@ export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
         <div
           className="badge"
           style={{
-            background: '#042f2e',
-            color: '#2dd4bf',
-            border: '1px solid #0f766e',
+            background: '#0b2a4a',
+            color: '#38bdf8',
+            border: '1px solid #0770e3',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '4px',

@@ -10,6 +10,10 @@ import { SupabaseConfigModal } from './components/Auth/SupabaseConfigModal';
 import { StorageService } from './services/storageService';
 import { SupabaseService, DEFAULT_SCENARIO_ID } from './services/supabaseService';
 import { runAllocationSolver } from './services/allocationSolver';
+import { SkyscannerHero } from './components/Skyscanner/SkyscannerHero';
+import { SkyscannerCrisisBanner } from './components/Skyscanner/SkyscannerCrisisBanner';
+import { SkyscannerFaq } from './components/Skyscanner/SkyscannerFaq';
+import { SkyscannerFooter } from './components/Skyscanner/SkyscannerFooter';
 import {
   activateExamCrisisScenario,
   computeCrisisComparisonMetrics
@@ -533,6 +537,19 @@ export const App: React.FC = () => {
         onOpenConfigModal={() => setIsConfigModalOpen(true)}
       />
 
+      {/* Signature Skyscanner Hero with Segmented Search Bar & Quick Navigation */}
+      <SkyscannerHero
+        currentView={currentView}
+        onViewChange={handleViewChange}
+        villages={villages}
+        institutions={institutions}
+        onQuickSearchOrSubmit={(vId, iId, isExam) => {
+          handleViewChange('STUDENT');
+        }}
+        onActivateCrisis={handleActivateExamCrisis}
+        isCrisisActive={Boolean(crisisState?.isActive)}
+      />
+
       {/* Floating Contextual Primary Action Button */}
       {currentView === 'COORDINATOR' && crisisState?.isStale && (
         <button
@@ -545,12 +562,12 @@ export const App: React.FC = () => {
             bottom: '24px',
             right: '24px',
             zIndex: 99,
-            background: '#0d9488',
+            background: '#0770e3',
             color: '#ffffff',
             border: 'none',
             borderRadius: '9999px',
             padding: '14px 22px',
-            boxShadow: '0 8px 24px rgba(13, 148, 136, 0.45)',
+            boxShadow: '0 8px 24px rgba(7, 112, 227, 0.45)',
             fontWeight: 800,
             display: 'inline-flex',
             alignItems: 'center',
@@ -575,7 +592,7 @@ export const App: React.FC = () => {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 1000,
-            background: '#0f172a',
+            background: '#05203c',
             color: '#ffffff',
             padding: '12px 20px',
             borderRadius: '8px',
@@ -590,6 +607,15 @@ export const App: React.FC = () => {
       )}
 
       <main className="main-content">
+        {/* Skyscanner Crisis Protocol Promotional Graphic Banner */}
+        <SkyscannerCrisisBanner
+          crisisState={crisisState}
+          onActivateCrisis={handleActivateExamCrisis}
+          onGenerateRecovery={handleGenerateCrisisRecovery}
+          onResetCrisis={handleResetExamCrisis}
+          onViewAudit={() => handleViewChange('COORDINATOR')}
+        />
+
         {currentView === 'STUDENT' ? (
           <div className="student-view-container">
             <div className="view-header">
@@ -635,6 +661,9 @@ export const App: React.FC = () => {
             onApplyScenario={handleApplyScenario}
           />
         )}
+
+        {/* Skyscanner 2-Column Accordion FAQ Section */}
+        <SkyscannerFaq />
       </main>
 
       {/* Step-by-step evaluator walkthrough script modal */}
@@ -665,15 +694,8 @@ export const App: React.FC = () => {
         onClose={() => setIsConfigModalOpen(false)}
       />
 
-      <footer className="app-footer">
-        <p>
-          <strong>RouteLess</strong> — Educational Transport Resilience Prototype. Developed for the{' '}
-          <em>ROUTELESS: THE LAST MILE — AI-Powered Rural Transportation Challenge</em>.
-        </p>
-        <p style={{ marginTop: '4px', fontSize: '0.75rem', color: '#94a3b8' }}>
-          Pure TypeScript deterministic allocation heuristic • No live GPS or real student PII • Supabase Cloud & Local Demo Dual Mode
-        </p>
-      </footer>
+      {/* Skyscanner Midnight Navy Footer */}
+      <SkyscannerFooter />
     </div>
   );
 };

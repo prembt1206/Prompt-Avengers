@@ -35,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div>
           <h1 className="nav-title">
             RouteLess
-            <span style={{ fontSize: '0.65rem', background: '#3b82f6', color: 'white', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '0.65rem', background: '#0770e3', color: 'white', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>
               Prototype
             </span>
           </h1>
