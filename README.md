@@ -5,10 +5,11 @@
 > Built for the *ROUTELESS: THE LAST MILE — AI-Powered Rural Transportation Challenge*
 
 [![Automated Tests](https://img.shields.io/badge/Tests-26%20Passing-emerald)](https://github.com/prembt1206/Prompt-Avengers)
+[![Deployment](https://img.shields.io/badge/Vercel-Live%20App-black?logo=vercel)](https://prompt-avengers.vercel.app/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-blue?logo=github)](https://prembt1206.github.io/routeless/)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20RLS%20Integrated-3ECF8E?logo=supabase)](https://supabase.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/Build-Production%20Ready-brightgreen)](https://github.com/prembt1206/Prompt-Avengers)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue)](https://prembt1206.github.io/routeless/)
 
 ---
 
@@ -35,8 +36,9 @@ In rural and suburban corridors, physical distance and unpredictable infrastruct
 
 ## 🚀 Live Public Deployment & Repository
 
-- **Public Web Application (Primary):** [https://prembt1206.github.io/routeless/](https://prembt1206.github.io/routeless/)
-- **Public Web Application (Mirror):** [https://prembt1206.github.io/Prompt-Avengers/](https://prembt1206.github.io/Prompt-Avengers/)
+- **Public Web Application (Vercel Production):** [https://prompt-avengers.vercel.app/](https://prompt-avengers.vercel.app/)
+- **Public Web Application (GitHub Pages):** [https://prembt1206.github.io/routeless/](https://prembt1206.github.io/routeless/)
+- **Public Web Application (GitHub Pages Mirror):** [https://prembt1206.github.io/Prompt-Avengers/](https://prembt1206.github.io/Prompt-Avengers/)
 - **Public GitHub Repository (Primary):** [https://github.com/prembt1206/Prompt-Avengers](https://github.com/prembt1206/Prompt-Avengers)
 - **Public GitHub Repository (Mirror):** [https://github.com/prembt1206/routeless](https://github.com/prembt1206/routeless)
 
