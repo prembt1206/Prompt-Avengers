@@ -1592,3 +1592,10 @@ complete solution that satisfies the official crisis scenario.
 - **Time:** 2026-11-13 12:52 PM IST
 - **Tool:** Google Antigravity (Model: Gemini 3.8 Flash High)
 - **Prompt:** "Now create a prompt.md file. I have given you a text in which I have saved every prompt which I use outside Antigravity. Also add the details of which prompt I have used in Antigravity, and create a prompt.md file."
+
+---
+
+## Prompt 13
+- **Time:** 2026-11-13 12:59 PM IST
+- **Tool:** Google Antigravity (Model: Gemini 3.8 Flash High)
+- **Prompt:** "Act as a senior full-stack engineer and Supabase integration specialist. Connect my existing RouteLess application to Supabase. Modify the current project in place. Do not rebuild the application. Preserve the existing UI, animations, route visualization, student workflow, coordinator dashboard, allocation algorithm, and Exam Day Crisis features. First inspect the actual codebase and adapt these instructions to its stack. Replace browser-only persistence with a working Supabase integration. Persist the existing application data needed for: Student transport requests, Villages and institutions, Vehicles and trips, Route connections and blocked roads, Crisis scenarios, Allocation runs and assignments. Use Supabase Auth for real user identity. Use database authorization for coordinator permissions."

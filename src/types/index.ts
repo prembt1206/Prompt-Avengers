@@ -248,3 +248,30 @@ export interface CrisisComparisonMetrics {
   activeVehiclesCount: number;
   disabledVehiclesCount: number;
 }
+
+export type UserRole = 'coordinator' | 'student';
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName?: string;
+  role?: UserRole;
+}
+
+export interface AuthSessionState {
+  user: UserProfile | null;
+  role: UserRole | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export type AppDataSourceMode = 'LOCAL_DEMO' | 'SUPABASE_CLOUD';
+
+export interface ScenarioMeta {
+  id: string;
+  name: string;
+  description?: string;
+  isActiveCrisis: boolean;
+  simulationClock: string;
+  version: number;
+}

@@ -1,18 +1,30 @@
 import React from 'react';
 import { Bus, Users, Shield, RotateCcw, BookOpen } from 'lucide-react';
+import { UserSessionBadge } from './Auth/UserSessionBadge';
+import { UserProfile } from '../types';
 
 interface NavbarProps {
   currentView: 'COORDINATOR' | 'STUDENT';
   onViewChange: (view: 'COORDINATOR' | 'STUDENT') => void;
   onResetDemo: () => void;
   onOpenDemoScript: () => void;
+  currentUser?: UserProfile | null;
+  isSupabaseConfigured?: boolean;
+  onOpenAuthModal?: () => void;
+  onSignOut?: () => void;
+  onOpenConfigModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   onViewChange,
   onResetDemo,
-  onOpenDemoScript
+  onOpenDemoScript,
+  currentUser = null,
+  isSupabaseConfigured = false,
+  onOpenAuthModal = () => {},
+  onSignOut = () => {},
+  onOpenConfigModal = () => {}
 }) => {
   return (
     <header className="app-navbar">
@@ -32,6 +44,15 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       <div className="nav-actions">
+        {/* Supabase Authentication & Session Badge */}
+        <UserSessionBadge
+          currentUser={currentUser}
+          isConfigured={isSupabaseConfigured}
+          onOpenAuthModal={onOpenAuthModal}
+          onSignOut={onSignOut}
+          onOpenConfigModal={onOpenConfigModal}
+        />
+
         {/* Demo Mode Toggle */}
         <div className="mode-toggle-group" aria-label="Demo Role Switcher">
           <button
@@ -79,4 +100,3 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
-
