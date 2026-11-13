@@ -1,5 +1,16 @@
 import React from 'react';
-import { ArrowRight, ArrowLeftRight, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowLeftRight,
+  CheckCircle2,
+  AlertTriangle,
+  RefreshCw,
+  BarChart3,
+  TrendingDown,
+  TrendingUp,
+  Bus,
+  Users
+} from 'lucide-react';
 import { AllocationResult } from '../../types';
 import { computeAllocationDiff } from '../../services/allocationSolver';
 
@@ -16,21 +27,33 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 }) => {
   if (!baselineResult) {
     return (
-      <div className="card" style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
-        Please run <strong>Baseline Allocation</strong> first to establish the initial benchmark before comparing.
+      <div className="card" style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
+        <BarChart3 size={36} style={{ margin: '0 auto 12px auto', opacity: 0.4 }} />
+        <h4 style={{ color: '#f8fafc', margin: '0 0 6px 0' }}>Baseline Allocation Required</h4>
+        <p style={{ fontSize: '0.85rem', maxWidth: '480px', margin: '0 auto' }}>
+          Please execute <strong>1. Run Baseline Allocation</strong> first to establish the operational benchmark before running comparison analysis.
+        </p>
       </div>
     );
   }
 
   if (!recoveryResult) {
     return (
-      <div className="card" style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
-        <p style={{ marginBottom: '14px' }}>
+      <div className="card" style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
+        <AlertTriangle size={36} style={{ margin: '0 auto 12px auto', color: '#f59e0b', opacity: 0.8 }} />
+        <h4 style={{ color: '#f8fafc', margin: '0 0 6px 0' }}>Baseline Benchmark Established</h4>
+        <p style={{ fontSize: '0.85rem', maxWidth: '540px', margin: '0 auto 16px auto' }}>
           Baseline allocation established ({baselineResult.assignedCount} assigned, {baselineResult.unmetCount} unmet).
-          Now trigger a vehicle breakdown or route closure and run <strong>Recovery Allocation</strong> to view comparative analysis.
+          Now trigger a vehicle breakdown or road closure above and click below to view comparative analysis.
         </p>
-        <button type="button" className="btn btn-warning" onClick={onRunRecovery}>
-          <RefreshCw size={14} /> Run Recovery Allocation Now
+        <button
+          type="button"
+          className="btn btn-warning"
+          onClick={onRunRecovery}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          <RefreshCw size={15} />
+          <span>Execute Recovery Allocation Now</span>
         </button>
       </div>
     );
@@ -38,76 +61,194 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
   const diff = computeAllocationDiff(baselineResult, recoveryResult);
 
+  const displacedCount = diff.displacedAssignments.filter(d => d.newStatus === 'UNMET').length;
+  const reroutedCount = diff.displacedAssignments.filter(d => d.newStatus === 'REROUTED').length;
+
+  const assignedDelta = recoveryResult.assignedCount - baselineResult.assignedCount;
+  const unmetDelta = recoveryResult.unmetCount - baselineResult.unmetCount;
+
   return (
-    <div className="card">
-      <div className="card-header">
-        <h3 className="card-title">
+    <div className="card" style={{ marginBottom: '20px' }}>
+      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <ArrowLeftRight size={18} className="text-primary" />
-          Baseline vs Recovery Comparative Analysis (P1)
-        </h3>
-        <span className="badge badge-info">Differential Audit</span>
+          <h3 className="card-title" style={{ margin: 0 }}>
+            Before-and-After Analysis (Baseline vs Recovery Delta)
+          </h3>
+        </div>
+        <span className="badge badge-info" style={{ fontSize: '0.7rem' }}>
+          Empirical Disruption Impact Audit
+        </span>
       </div>
 
       <div className="card-body">
-        {/* Metric Deltas */}
-        <div className="grid-3" style={{ marginBottom: '20px' }}>
-          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Assigned Seat Delta</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#334155' }}>
+        {/* KPI Delta Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+          {/* Card 1: Assigned Seats Delta */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Assigned Students
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+              <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#38bdf8' }}>
                 {baselineResult.assignedCount}
               </span>
-              <ArrowRight size={14} className="text-muted" />
-              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: recoveryResult.assignedCount < baselineResult.assignedCount ? '#dc2626' : '#10b981' }}>
+              <ArrowRight size={16} className="text-muted" />
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: assignedDelta < 0 ? '#ef4444' : '#10b981' }}>
                 {recoveryResult.assignedCount}
               </span>
-              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                ({recoveryResult.assignedCount - baselineResult.assignedCount > 0 ? '+' : ''}{recoveryResult.assignedCount - baselineResult.assignedCount})
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: assignedDelta < 0 ? '#ef4444' : '#10b981' }}>
+                ({assignedDelta > 0 ? '+' : ''}{assignedDelta})
               </span>
             </div>
-            <div style={{ fontSize: '0.725rem', color: '#94a3b8', marginTop: '2px' }}>Baseline → Recovery</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>
+              Baseline $\to$ Recovery Allocation
+            </div>
           </div>
 
-          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Unmet Demand Delta</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#334155' }}>
+          {/* Card 2: Unmet Demand Delta */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Unmet Demand
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+              <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#94a3b8' }}>
                 {baselineResult.unmetCount}
               </span>
-              <ArrowRight size={14} className="text-muted" />
-              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: recoveryResult.unmetCount > baselineResult.unmetCount ? '#dc2626' : '#10b981' }}>
+              <ArrowRight size={16} className="text-muted" />
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: unmetDelta > 0 ? '#ef4444' : '#10b981' }}>
                 {recoveryResult.unmetCount}
               </span>
-              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                ({recoveryResult.unmetCount - baselineResult.unmetCount > 0 ? '+' : ''}{recoveryResult.unmetCount - baselineResult.unmetCount})
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: unmetDelta > 0 ? '#ef4444' : '#10b981' }}>
+                ({unmetDelta > 0 ? '+' : ''}{unmetDelta})
               </span>
             </div>
-            <div style={{ fontSize: '0.725rem', color: '#94a3b8', marginTop: '2px' }}>Increased unmet due to physical constraints</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>
+              {unmetDelta > 0 ? 'Surge in stranded students' : 'Demand stabilized'}
+            </div>
           </div>
 
-          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Fleet Seat Utilization</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#334155' }}>
-                {baselineResult.capacityUtilizationPct}%
-              </span>
-              <ArrowRight size={14} className="text-muted" />
-              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#2563eb' }}>
-                {recoveryResult.capacityUtilizationPct}%
-              </span>
+          {/* Card 3: Displaced Students */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Displaced Students
             </div>
-            <div style={{ fontSize: '0.725rem', color: '#94a3b8', marginTop: '2px' }}>Operational load efficiency</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ef4444', marginTop: '6px' }}>
+              {displacedCount}
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>
+              Had seats in baseline, now unmet
+            </div>
+          </div>
+
+          {/* Card 4: Rerouted Students */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Rerouted Students
+            </div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#38bdf8', marginTop: '6px' }}>
+              {reroutedCount}
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>
+              Reassigned to alternative surviving vehicles
+            </div>
           </div>
         </div>
 
-        {/* Displaced / Rerouted students list */}
-        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', marginBottom: '10px' }}>
-          Displaced or Rerouted Students ({diff.displacedAssignments.length})
+        {/* Visual Comparison Charts Grid */}
+        <div className="grid-2" style={{ marginBottom: '20px' }}>
+          {/* Chart 1: Student Accommodation Visual Bar Comparison */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#f8fafc', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Users size={16} className="text-primary" />
+              Student Accommodation Comparison
+            </div>
+
+            {/* Baseline Bars */}
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '3px' }}>
+                <span>Baseline ({baselineResult.totalRequests} Requests)</span>
+                <span>{baselineResult.assignedCount} Assigned · {baselineResult.unmetCount} Unmet</span>
+              </div>
+              <div style={{ width: '100%', height: 16, background: '#1e293b', borderRadius: 4, display: 'flex', overflow: 'hidden' }}>
+                <div style={{ width: `${(baselineResult.assignedCount / baselineResult.totalRequests) * 100}%`, background: '#10b981' }} title={`Assigned: ${baselineResult.assignedCount}`} />
+                <div style={{ width: `${(baselineResult.unmetCount / baselineResult.totalRequests) * 100}%`, background: '#ef4444' }} title={`Unmet: ${baselineResult.unmetCount}`} />
+              </div>
+            </div>
+
+            {/* Recovery Bars */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '3px' }}>
+                <span>Recovery ({recoveryResult.totalRequests} Requests)</span>
+                <span>{recoveryResult.assignedCount} Assigned · {recoveryResult.unmetCount} Unmet</span>
+              </div>
+              <div style={{ width: '100%', height: 16, background: '#1e293b', borderRadius: 4, display: 'flex', overflow: 'hidden' }}>
+                <div style={{ width: `${(recoveryResult.assignedCount / recoveryResult.totalRequests) * 100}%`, background: '#10b981' }} title={`Assigned: ${recoveryResult.assignedCount}`} />
+                <div style={{ width: `${(recoveryResult.unmetCount / recoveryResult.totalRequests) * 100}%`, background: '#ef4444' }} title={`Unmet: ${recoveryResult.unmetCount}`} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '14px', marginTop: '10px', fontSize: '0.75rem', color: '#94a3b8' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: 10, height: 10, background: '#10b981', borderRadius: 2 }} />
+                Assigned
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: 10, height: 10, background: '#ef4444', borderRadius: 2 }} />
+                Unmet Demand
+              </span>
+            </div>
+          </div>
+
+          {/* Chart 2: Vehicle-by-Vehicle Capacity Delta */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '14px' }}>
+            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#f8fafc', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Bus size={16} className="text-primary" />
+              Vehicle Capacity Load Comparison
+            </div>
+
+            {diff.capacityDelta.map(c => {
+              const utilBase = baselineResult.tripUtilization.find(u => u.tripId === c.tripId);
+              const utilRec = recoveryResult.tripUtilization.find(u => u.tripId === c.tripId);
+              const capacity = utilBase?.capacity || 5;
+
+              return (
+                <div key={c.tripId} style={{ marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '3px' }}>
+                    <span style={{ color: utilRec?.isCancelled ? '#ef4444' : '#f8fafc', fontWeight: 600 }}>
+                      {c.vehicleName.split('—')[0]}
+                      {utilRec?.isCancelled && <span className="badge badge-danger" style={{ marginLeft: 6, fontSize: '0.65rem' }}>DISABLED</span>}
+                    </span>
+                    <span style={{ color: '#94a3b8' }}>
+                      {c.baselineAllocated} $\to$ <b>{c.recoveryAllocated}</b> / {capacity} seats
+                    </span>
+                  </div>
+
+                  <div style={{ width: '100%', height: 8, background: '#1e293b', borderRadius: 4, overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        width: utilRec?.isCancelled ? '0%' : `${(c.recoveryAllocated / capacity) * 100}%`,
+                        height: '100%',
+                        background: utilRec?.isCancelled ? '#ef4444' : c.recoveryAllocated >= capacity ? '#f59e0b' : '#38bdf8',
+                        borderRadius: 4
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Displaced / Rerouted Students Breakdown Table */}
+        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f8fafc', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <AlertTriangle size={16} className="text-warning" />
+          Displaced or Rerouted Student Audit Roster ({diff.displacedAssignments.length})
         </h4>
 
         {diff.displacedAssignments.length === 0 ? (
-          <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '6px', fontSize: '0.825rem', color: '#64748b' }}>
-            No students were displaced or rerouted between these runs.
+          <div style={{ padding: '16px', background: '#0f172a', border: '1px solid #1e293b', borderRadius: '6px', fontSize: '0.825rem', color: '#10b981', textAlign: 'center' }}>
+            ✓ No students were displaced or rerouted between baseline and recovery.
           </div>
         ) : (
           <div className="table-responsive">
@@ -117,24 +258,24 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   <th>Student</th>
                   <th>Baseline Assignment</th>
                   <th>Recovery Status</th>
-                  <th>Impact & Explanation</th>
+                  <th>Root Cause & Operational Explanation</th>
                 </tr>
               </thead>
               <tbody>
                 {diff.displacedAssignments.map((disp, i) => (
-                  <tr key={i} style={{ background: disp.newStatus === 'UNMET' ? '#fff5f5' : '#eff6ff' }}>
-                    <td style={{ fontWeight: 600 }}>{disp.studentName}</td>
+                  <tr key={i} style={{ background: disp.newStatus === 'UNMET' ? '#450a0a25' : '#0f172a' }}>
+                    <td style={{ fontWeight: 600, color: '#f8fafc' }}>{disp.studentName}</td>
                     <td>
-                      <span className="badge badge-neutral">{disp.previousTripName}</span>
+                      <span className="badge badge-secondary">{disp.previousTripName}</span>
                     </td>
                     <td>
                       {disp.newStatus === 'UNMET' ? (
-                        <span className="badge badge-danger">Lost Transport</span>
+                        <span className="badge badge-danger">Displaced (Unmet)</span>
                       ) : (
-                        <span className="badge badge-info">Rerouted → {disp.newTripName}</span>
+                        <span className="badge badge-success">Rerouted $\to$ {disp.newTripName}</span>
                       )}
                     </td>
-                    <td style={{ fontSize: '0.8rem', color: disp.newStatus === 'UNMET' ? '#991b1b' : '#1e3a8a' }}>
+                    <td style={{ fontSize: '0.8rem', color: disp.newStatus === 'UNMET' ? '#fca5a5' : '#7dd3fc' }}>
                       {disp.reason}
                     </td>
                   </tr>
@@ -147,4 +288,3 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     </div>
   );
 };
-

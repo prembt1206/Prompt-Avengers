@@ -6,7 +6,13 @@ import {
   CheckCircle2,
   AlertTriangle,
   ArrowLeftRight,
-  Terminal
+  Terminal,
+  Activity,
+  FlaskConical,
+  Scale,
+  Map as MapIcon,
+  Layers,
+  HelpCircle
 } from 'lucide-react';
 import {
   Village,
@@ -18,11 +24,16 @@ import {
 } from '../../types';
 import { AllocationSummary } from './AllocationSummary';
 import { DisruptionPresets } from './DisruptionPresets';
+import { TransportOverview } from './TransportOverview';
+import { InteractiveLeafletMap } from '../Map/InteractiveLeafletMap';
 import { NetworkMapSvg } from './NetworkMapSvg';
-import { VehicleTripList } from './VehicleTripList';
+import { VehicleManager } from '../Fleet/VehicleManager';
 import { RoadConnectionsList } from './RoadConnectionsList';
 import { AssignmentTable } from './AssignmentTable';
 import { UnmetDemandTable } from './UnmetDemandTable';
+import { DecisionExplanationPanel } from './DecisionExplanationPanel';
+import { WhatIfSimulator } from './WhatIfSimulator';
+import { FairnessAnalytics } from './FairnessAnalytics';
 import { ComparisonView } from './ComparisonView';
 import { SolverLogViewer } from './SolverLogViewer';
 
@@ -40,7 +51,15 @@ interface CoordinatorDashboardProps {
   onUpdateTripCapacity: (tripId: string, newCapacity: number) => void;
   onToggleTripCancellation: (tripId: string, cancelReason?: string) => void;
   onToggleConnectionBlocked: (connectionId: string, blockedReason?: string) => void;
-  onApplyScenario: (updatedTrips: VehicleTrip[], updatedConnections: TransportConnection[], scenarioName: string) => void;
+  onApplyScenario: (
+    updatedTrips: VehicleTrip[],
+    updatedConnections: TransportConnection[],
+    scenarioName: string,
+    updatedRequests?: StudentRequest[]
+  ) => void;
+  onAddVehicle: (newTrip: VehicleTrip) => void;
+  onUpdateVehicle: (updatedTrip: VehicleTrip) => void;
+  onDeleteVehicle: (tripId: string) => void;
 }
 
 export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
@@ -57,20 +76,31 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
   onUpdateTripCapacity,
   onToggleTripCancellation,
   onToggleConnectionBlocked,
-  onApplyScenario
+  onApplyScenario,
+  onAddVehicle,
+  onUpdateVehicle,
+  onDeleteVehicle
 }) => {
-  const [activeTab, setActiveTab] = useState<'MAP' | 'FLEET' | 'ROADS' | 'ALLOCATIONS' | 'DIFF' | 'LOGS'>('ALLOCATIONS');
+  const [activeTab, setActiveTab] = useState<
+    'OVERVIEW' | 'MAP' | 'FLEET' | 'ROADS' | 'ALLOCATIONS' | 'EXPLANATIONS' | 'SIMULATOR' | 'FAIRNESS' | 'DIFF' | 'LOGS'
+  >('OVERVIEW');
+
+  const [mapMode, setMapMode] = useState<'LEAFLET' | 'TOPOLOGY'>('LEAFLET');
+
+  const blockedCount = connections.filter(c => c.isBlocked).length;
+  const breakdownCount = trips.filter(t => t.isCancelled).length;
 
   return (
     <div>
-      {/* Disruption Presets Bar */}
+      {/* 1. Predefined Demonstration Scenarios Bar */}
       <DisruptionPresets
         trips={trips}
         connections={connections}
+        requests={requests}
         onApplyScenario={onApplyScenario}
       />
 
-      {/* Allocation Summary & Run Controls */}
+      {/* 2. Professional KPI Cards & Solver Engine Cockpit */}
       <AllocationSummary
         currentResult={currentResult}
         baselineResult={baselineResult}
@@ -81,15 +111,15 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
         onRunRecovery={onRunRecovery}
       />
 
-      {/* Tab Navigation */}
-      <div className="tabs-nav">
+      {/* 3. Comprehensive Navigation Tabs */}
+      <div className="tabs-nav" style={{ overflowX: 'auto', flexWrap: 'nowrap', marginBottom: '16px' }}>
         <button
           type="button"
-          className={`tab-btn ${activeTab === 'ALLOCATIONS' ? 'active' : ''}`}
-          onClick={() => setActiveTab('ALLOCATIONS')}
+          className={`tab-btn ${activeTab === 'OVERVIEW' ? 'active' : ''}`}
+          onClick={() => setActiveTab('OVERVIEW')}
         >
-          <CheckCircle2 size={16} />
-          <span>Assignments & Unmet Demand ({currentResult ? currentResult.assignedCount + '/' + currentResult.totalRequests : requests.length})</span>
+          <Activity size={16} />
+          <span>Transport Overview</span>
         </button>
 
         <button
@@ -98,7 +128,7 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('MAP')}
         >
           <MapPin size={16} />
-          <span>Interactive Network Topology</span>
+          <span>Interactive GIS Map</span>
         </button>
 
         <button
@@ -107,7 +137,7 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('FLEET')}
         >
           <Bus size={16} />
-          <span>Fleet & Capacity Controls ({trips.length})</span>
+          <span>Fleet Registry ({trips.length})</span>
         </button>
 
         <button
@@ -116,7 +146,43 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('ROADS')}
         >
           <Route size={16} />
-          <span>Road Corridors ({connections.filter(c => c.isBlocked).length} Blocked)</span>
+          <span>Road Corridors {blockedCount > 0 && `(${blockedCount} Blocked)`}</span>
+        </button>
+
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'ALLOCATIONS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('ALLOCATIONS')}
+        >
+          <CheckCircle2 size={16} />
+          <span>Assignments & Demand ({currentResult ? currentResult.assignedCount + '/' + currentResult.totalRequests : requests.length})</span>
+        </button>
+
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'EXPLANATIONS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('EXPLANATIONS')}
+        >
+          <HelpCircle size={16} />
+          <span>Decision Audit & Proof</span>
+        </button>
+
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'SIMULATOR' ? 'active' : ''}`}
+          onClick={() => setActiveTab('SIMULATOR')}
+        >
+          <FlaskConical size={16} />
+          <span>What-If Simulator</span>
+        </button>
+
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'FAIRNESS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('FAIRNESS')}
+        >
+          <Scale size={16} />
+          <span>Fairness & Vulnerability</span>
         </button>
 
         <button
@@ -125,7 +191,7 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('DIFF')}
         >
           <ArrowLeftRight size={16} />
-          <span>Baseline vs Recovery Diff (P1)</span>
+          <span>Recovery Diff (P1)</span>
         </button>
 
         <button
@@ -134,32 +200,88 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('LOGS')}
         >
           <Terminal size={16} />
-          <span>Solver Trace Logs (P1)</span>
+          <span>Solver Logs</span>
         </button>
       </div>
 
-      {/* Tab Contents */}
-      {activeTab === 'MAP' && (
-        <NetworkMapSvg
-          villages={villages}
-          institutions={institutions}
-          connections={connections}
+      {/* 4. Tab Contents */}
+
+      {/* TAB A: OVERVIEW */}
+      {activeTab === 'OVERVIEW' && (
+        <TransportOverview
           trips={trips}
           requests={requests}
-          onToggleConnection={onToggleConnectionBlocked}
-          onToggleTrip={onToggleTripCancellation}
+          allocationResult={currentResult}
+          villages={villages}
+          connections={connections}
         />
       )}
 
+      {/* TAB B: INTERACTIVE MAP (LEAFLET GIS + TOPOLOGY TOGGLE) */}
+      {activeTab === 'MAP' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', gap: '8px' }}>
+            <button
+              type="button"
+              className={`btn ${mapMode === 'LEAFLET' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ fontSize: '0.75rem', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
+              onClick={() => setMapMode('LEAFLET')}
+            >
+              <MapIcon size={14} />
+              <span>Geographical Map (Leaflet OSM)</span>
+            </button>
+            <button
+              type="button"
+              className={`btn ${mapMode === 'TOPOLOGY' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ fontSize: '0.75rem', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
+              onClick={() => setMapMode('TOPOLOGY')}
+            >
+              <Layers size={14} />
+              <span>Topological Schematic (SVG)</span>
+            </button>
+          </div>
+
+          {mapMode === 'LEAFLET' ? (
+            <InteractiveLeafletMap
+              villages={villages}
+              institutions={institutions}
+              connections={connections}
+              trips={trips}
+              requests={requests}
+              allocationResult={currentResult}
+              onToggleConnection={onToggleConnectionBlocked}
+              onToggleTrip={onToggleTripCancellation}
+            />
+          ) : (
+            <NetworkMapSvg
+              villages={villages}
+              institutions={institutions}
+              connections={connections}
+              trips={trips}
+              requests={requests}
+              allocationResult={currentResult}
+              onToggleConnection={onToggleConnectionBlocked}
+              onToggleTrip={onToggleTripCancellation}
+            />
+          )}
+        </div>
+      )}
+
+      {/* TAB C: FLEET TELEMATICS & VEHICLE REGISTRY */}
       {activeTab === 'FLEET' && (
-        <VehicleTripList
+        <VehicleManager
           trips={trips}
-          tripUtilizations={currentResult?.tripUtilization}
-          onUpdateCapacity={onUpdateTripCapacity}
+          allocationResult={currentResult}
+          villages={villages}
+          institutions={institutions}
+          onAddVehicle={onAddVehicle}
+          onUpdateVehicle={onUpdateVehicle}
+          onDeleteVehicle={onDeleteVehicle}
           onToggleCancellation={onToggleTripCancellation}
         />
       )}
 
+      {/* TAB D: ROAD CORRIDORS */}
       {activeTab === 'ROADS' && (
         <RoadConnectionsList
           connections={connections}
@@ -168,16 +290,42 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
         />
       )}
 
+      {/* TAB E: ASSIGNMENTS & UNMET DEMAND */}
       {activeTab === 'ALLOCATIONS' && (
         <div>
-          {/* Assigned Students */}
           <AssignmentTable assignments={currentResult?.assignments || []} />
-
-          {/* Unmet Demand with Honest Explanations */}
           <UnmetDemandTable unmetRequests={currentResult?.unmetRequests || []} />
         </div>
       )}
 
+      {/* TAB F: INTELLIGENT DECISION EXPLANATIONS */}
+      {activeTab === 'EXPLANATIONS' && (
+        <DecisionExplanationPanel
+          requests={requests}
+          allocationResult={currentResult}
+          trips={trips}
+        />
+      )}
+
+      {/* TAB G: WHAT-IF SIMULATOR */}
+      {activeTab === 'SIMULATOR' && (
+        <WhatIfSimulator
+          requests={requests}
+          trips={trips}
+          connections={connections}
+        />
+      )}
+
+      {/* TAB H: FAIRNESS & VULNERABILITY */}
+      {activeTab === 'FAIRNESS' && (
+        <FairnessAnalytics
+          villages={villages}
+          requests={requests}
+          allocationResult={currentResult}
+        />
+      )}
+
+      {/* TAB I: BASELINE VS RECOVERY DIFF */}
       {activeTab === 'DIFF' && (
         <ComparisonView
           baselineResult={baselineResult}
@@ -186,10 +334,10 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
         />
       )}
 
+      {/* TAB J: SOLVER LOGS */}
       {activeTab === 'LOGS' && (
         <SolverLogViewer logs={currentResult?.solverLogs || []} />
       )}
     </div>
   );
 };
-

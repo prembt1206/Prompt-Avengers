@@ -1,6 +1,25 @@
-import React from 'react';
-import { Village, Institution, TransportConnection, VehicleTrip, StudentRequest } from '../../types';
-import { AlertOctagon, CheckCircle2, ShieldAlert } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Village,
+  Institution,
+  TransportConnection,
+  VehicleTrip,
+  StudentRequest,
+  AllocationResult
+} from '../../types';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ShieldAlert,
+  Info,
+  Bus,
+  School,
+  MapPin,
+  Waves,
+  Mountain,
+  ShieldCheck,
+  Ban
+} from 'lucide-react';
 
 interface NetworkMapSvgProps {
   villages: Village[];
@@ -8,6 +27,7 @@ interface NetworkMapSvgProps {
   connections: TransportConnection[];
   trips: VehicleTrip[];
   requests: StudentRequest[];
+  allocationResult?: AllocationResult | null;
   onToggleConnection: (connectionId: string) => void;
   onToggleTrip: (tripId: string) => void;
 }
@@ -18,63 +38,142 @@ export const NetworkMapSvg: React.FC<NetworkMapSvgProps> = ({
   connections,
   trips,
   requests,
+  allocationResult,
   onToggleConnection,
   onToggleTrip
 }) => {
-  // Build lookup of node coordinates
+  const [hoveredEntity, setHoveredEntity] = useState<{
+    title: string;
+    description: string;
+    details?: string;
+  } | null>(null);
+
+  // Build coordinate lookup
   const nodeCoords = new Map<string, { x: number; y: number; name: string }>();
   villages.forEach(v => nodeCoords.set(v.id, { x: v.coordinates.x, y: v.coordinates.y, name: v.name }));
   institutions.forEach(i => nodeCoords.set(i.id, { x: i.coordinates.x, y: i.coordinates.y, name: i.name }));
 
-  // Count requests per origin
+  // Demand count per village
   const requestCountByVillage = new Map<string, number>();
   requests.forEach(r => {
     requestCountByVillage.set(r.originVillageId, (requestCountByVillage.get(r.originVillageId) || 0) + 1);
   });
 
+  // Unmet count per village from solver
+  const unmetCountByVillage = new Map<string, number>();
+  allocationResult?.unmetRequests.forEach(u => {
+    unmetCountByVillage.set(u.originVillageId, (unmetCountByVillage.get(u.originVillageId) || 0) + 1);
+  });
+
+  // Blocked connections count
+  const blockedCount = connections.filter(c => c.isBlocked).length;
+  const breakdownCount = trips.filter(t => t.isCancelled).length;
+
   return (
     <div className="card" style={{ marginBottom: '20px' }}>
-      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 className="card-title">
+      {/* Map Header */}
+      <div
+        className="card-header"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '10px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <ShieldAlert size={18} className="text-primary" />
-          Interactive Rural Transit Network Topology
-        </h3>
-        <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', alignItems: 'center' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: 12, height: 4, background: '#38bdf8', display: 'inline-block', borderRadius: 2 }}></span>
-            Active Corridor
+          <h3 className="card-title" style={{ margin: 0 }}>
+            Interactive Rural Transit Network Topology (SVG Schematic)
+          </h3>
+          <span className="badge badge-info" style={{ fontSize: '0.7rem' }}>
+            Live Topological Model
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: 12, height: 4, background: '#ef4444', display: 'inline-block', borderRadius: 2, border: '1px dashed red' }}></span>
-            Blocked Corridor (Click to Toggle)
+        </div>
+
+        {/* Status Indicators */}
+        <div style={{ display: 'flex', gap: '14px', fontSize: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ width: 12, height: 4, background: '#38bdf8', display: 'inline-block', borderRadius: 2 }} />
+            Passable Road
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: 10, height: 10, background: '#10b981', borderRadius: '50%', display: 'inline-block' }}></span>
-            Active Vehicle
+          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ width: 12, height: 4, background: '#ef4444', display: 'inline-block', borderRadius: 2, border: '1px dashed red' }} />
+            Blocked Road (Click to Toggle)
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ width: 10, height: 10, background: '#ef4444', borderRadius: '50%', display: 'inline-block' }}></span>
-            Cancelled Vehicle
+          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ width: 10, height: 10, background: '#10b981', borderRadius: '50%', display: 'inline-block' }} />
+            Active Bus
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ width: 10, height: 10, background: '#ef4444', borderRadius: '50%', display: 'inline-block' }} />
+            Cancelled / Breakdown
           </span>
         </div>
       </div>
 
-      <div className="card-body" style={{ background: '#0f172a', padding: '16px', borderRadius: '0 0 var(--radius-md) var(--radius-md)' }}>
+      {/* Disruption Feedback Banner */}
+      {(blockedCount > 0 || breakdownCount > 0) && (
+        <div
+          style={{
+            background: '#450a0a',
+            borderBottom: '1px solid #7f1d1d',
+            color: '#fca5a5',
+            padding: '8px 16px',
+            fontSize: '0.8rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+            flexWrap: 'wrap'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <AlertTriangle size={15} style={{ color: '#ef4444', flexShrink: 0 }} />
+            <span>
+              <b>Network Disruptions Detected:</b>{' '}
+              {blockedCount > 0 && `${blockedCount} corridor(s) severed. `}
+              {breakdownCount > 0 && `${breakdownCount} vehicle(s) disabled. `}
+              Affected students are honestly flagged as unmet demand until recovery is executed.
+            </span>
+          </div>
+          <span className="badge badge-danger">Topology Severed</span>
+        </div>
+      )}
+
+      {/* SVG Canvas Container */}
+      <div className="card-body" style={{ background: '#090d16', padding: '16px', position: 'relative' }}>
         <div style={{ position: 'relative', width: '100%', maxWidth: '880px', margin: '0 auto' }}>
           <svg
-            viewBox="0 0 820 490"
+            viewBox="0 0 840 500"
             className="network-svg"
-            style={{ width: '100%', height: 'auto', overflow: 'visible' }}
+            style={{ width: '100%', height: 'auto', overflow: 'visible', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))' }}
           >
-            {/* Background grid pattern */}
             <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" strokeWidth="0.75" />
+              {/* Background blueprint grid */}
+              <pattern id="topologyGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#131d2e" strokeWidth="0.8" />
               </pattern>
-            </defs>
-            <rect width="820" height="490" fill="url(#grid)" rx="8" />
 
-            {/* Road Connections / Edges */}
+              {/* Directional arrow marker */}
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8" opacity="0.6" />
+              </marker>
+
+              {/* Pulsing glow filter for active vehicles */}
+              <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            {/* Base Background */}
+            <rect width="840" height="500" fill="url(#topologyGrid)" rx="8" />
+
+            {/* ============================================================== */}
+            {/* 1. ROAD CORRIDOR CONNECTIONS (EDGES) */}
+            {/* ============================================================== */}
             {connections.map(conn => {
               const from = nodeCoords.get(conn.fromId);
               const to = nodeCoords.get(conn.toId);
@@ -82,83 +181,146 @@ export const NetworkMapSvg: React.FC<NetworkMapSvgProps> = ({
 
               const midX = (from.x + to.x) / 2;
               const midY = (from.y + to.y) / 2;
+              const isBlocked = conn.isBlocked;
 
               return (
                 <g
                   key={conn.id}
                   onClick={() => onToggleConnection(conn.id)}
+                  onMouseEnter={() =>
+                    setHoveredEntity({
+                      title: `${conn.fromName} ↔ ${conn.toName}`,
+                      description: `${conn.distanceKm} km · ${conn.travelMinutes} mins travel time · Road Type: ${conn.roadType}`,
+                      details: isBlocked
+                        ? `BLOCKED: ${conn.blockedReason || 'Impassable causeway/obstruction'}. Click to reopen.`
+                        : 'Status: Passable. Click to simulate road obstruction.'
+                    })
+                  }
+                  onMouseLeave={() => setHoveredEntity(null)}
                   style={{ cursor: 'pointer' }}
                   role="button"
                   tabIndex={0}
                 >
-                  <title>{`${conn.fromName} ↔ ${conn.toName}: ${conn.distanceKm}km, ${conn.travelMinutes}m (${conn.isBlocked ? 'BLOCKED: ' + conn.blockedReason : 'PASSABLE'}). Click to toggle block status.`}</title>
-                  {/* Invisible wide line for easier clicking */}
+                  <title>{`${conn.fromName} ↔ ${conn.toName}: ${conn.distanceKm}km. ${isBlocked ? 'BLOCKED' : 'PASSABLE'}. Click to toggle.`}</title>
+
+                  {/* Wide invisible line for effortless click target */}
+                  <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="transparent" strokeWidth="22" />
+
+                  {/* Shadow road track */}
                   <line
                     x1={from.x}
                     y1={from.y}
                     x2={to.x}
                     y2={to.y}
-                    stroke="transparent"
-                    strokeWidth="20"
-                  />
-                  {/* Road line */}
-                  <line
-                    x1={from.x}
-                    y1={from.y}
-                    x2={to.x}
-                    y2={to.y}
-                    stroke={conn.isBlocked ? '#ef4444' : '#38bdf8'}
-                    strokeWidth={conn.isBlocked ? '4' : '2.5'}
-                    strokeDasharray={conn.isBlocked ? '6,6' : undefined}
-                    opacity={conn.isBlocked ? 0.9 : 0.65}
+                    stroke={isBlocked ? '#450a0a' : '#0f2942'}
+                    strokeWidth="7"
+                    strokeLinecap="round"
                   />
 
-                  {/* Distance / Status badge pill */}
+                  {/* Operational / Blocked road line */}
+                  <line
+                    x1={from.x}
+                    y1={from.y}
+                    x2={to.x}
+                    y2={to.y}
+                    stroke={isBlocked ? '#ef4444' : '#38bdf8'}
+                    strokeWidth={isBlocked ? '3.5' : '2.5'}
+                    strokeDasharray={isBlocked ? '6,6' : undefined}
+                    opacity={isBlocked ? 1.0 : 0.75}
+                    strokeLinecap="round"
+                  />
+
+                  {/* Midpoint Status / Distance Badge */}
                   <g transform={`translate(${midX}, ${midY})`}>
                     <rect
-                      x="-38"
+                      x="-42"
                       y="-12"
-                      width="76"
+                      width="84"
                       height="24"
                       rx="12"
-                      fill={conn.isBlocked ? '#7f1d1d' : '#1e293b'}
-                      stroke={conn.isBlocked ? '#f87171' : '#475569'}
+                      fill={isBlocked ? '#7f1d1d' : '#1e293b'}
+                      stroke={isBlocked ? '#ef4444' : '#3b82f6'}
                       strokeWidth="1.5"
                     />
                     <text
                       x="0"
                       y="4"
                       textAnchor="middle"
-                      fill={conn.isBlocked ? '#fca5a5' : '#cbd5e1'}
+                      fill={isBlocked ? '#fca5a5' : '#e2e8f0'}
                       fontSize="9.5"
                       fontWeight="bold"
                     >
-                      {conn.isBlocked ? 'BLOCKED' : `${conn.distanceKm}km • ${conn.travelMinutes}m`}
+                      {isBlocked ? '⛔ BLOCKED' : `${conn.distanceKm}km · ${conn.travelMinutes}m`}
                     </text>
                   </g>
                 </g>
               );
             })}
 
-            {/* Village Nodes */}
+            {/* ============================================================== */}
+            {/* 2. VILLAGE HAMLET NODES */}
+            {/* ============================================================== */}
             {villages.map(village => {
               const reqCount = requestCountByVillage.get(village.id) || 0;
+              const unmet = unmetCountByVillage.get(village.id) || 0;
+              const hasUnmet = unmet > 0;
+
+              // Check connectivity badge color
+              let nodeBorderColor = '#38bdf8';
+              let badgeFill = '#1e293b';
+              if (village.connectivityType === 'Vulnerable River Crossing') {
+                nodeBorderColor = '#f59e0b';
+                badgeFill = '#451a03';
+              } else if (hasUnmet) {
+                nodeBorderColor = '#ef4444';
+              }
+
               return (
-                <g key={village.id} transform={`translate(${village.coordinates.x}, ${village.coordinates.y})`}>
+                <g
+                  key={village.id}
+                  transform={`translate(${village.coordinates.x}, ${village.coordinates.y})`}
+                  onMouseEnter={() =>
+                    setHoveredEntity({
+                      title: village.name,
+                      description: `${village.panchayat} · Connectivity: ${village.connectivityType}`,
+                      details: `Demand: ${reqCount} registered students (${unmet} unmet/stranded)`
+                    })
+                  }
+                  onMouseLeave={() => setHoveredEntity(null)}
+                >
+                  {/* Pulsing ring if village is affected by unmet demand */}
+                  {hasUnmet && (
+                    <circle
+                      r="32"
+                      fill="none"
+                      stroke="#ef4444"
+                      strokeWidth="1.5"
+                      strokeDasharray="4,4"
+                      opacity="0.8"
+                    />
+                  )}
+
+                  {/* Outer circle */}
                   <circle
                     r="24"
-                    fill="#1e293b"
-                    stroke="#38bdf8"
+                    fill={badgeFill}
+                    stroke={nodeBorderColor}
                     strokeWidth="2.5"
                   />
-                  {/* Village icon circle */}
-                  <circle
-                    r="8"
-                    fill="#0284c7"
-                  />
-                  {/* Student request count badge */}
-                  <g transform="translate(14, -14)">
-                    <circle r="10" fill="#f59e0b" stroke="#78350f" strokeWidth="1" />
+
+                  {/* Inner glyph */}
+                  <text x="0" y="5" textAnchor="middle" fontSize="14">
+                    {village.connectivityType === 'Vulnerable River Crossing' ? '🌊' : '🏘️'}
+                  </text>
+
+                  {/* Student Demand Badge (Top Right) */}
+                  <g transform="translate(16, -14)">
+                    <circle
+                      r="10"
+                      fill={hasUnmet ? '#ef4444' : '#059669'}
+                      stroke="#ffffff"
+                      strokeWidth="1"
+                    />
                     <text
                       x="0"
                       y="3.5"
@@ -170,7 +332,8 @@ export const NetworkMapSvg: React.FC<NetworkMapSvgProps> = ({
                       {reqCount}
                     </text>
                   </g>
-                  {/* Village Name */}
+
+                  {/* Village Name and Panchayat */}
                   <text
                     x="0"
                     y="36"
@@ -186,111 +349,178 @@ export const NetworkMapSvg: React.FC<NetworkMapSvgProps> = ({
                     y="48"
                     textAnchor="middle"
                     fill="#94a3b8"
-                    fontSize="8.5"
+                    fontSize="8"
                   >
-                    {reqCount} requests
+                    {village.connectivityType}
                   </text>
                 </g>
               );
             })}
 
-            {/* Institution Nodes */}
+            {/* ============================================================== */}
+            {/* 3. EDUCATIONAL INSTITUTION NODES */}
+            {/* ============================================================== */}
             {institutions.map(inst => {
+              const isPolytechnic = inst.id === 'inst-kpt';
+
               return (
-                <g key={inst.id} transform={`translate(${inst.coordinates.x}, ${inst.coordinates.y})`}>
+                <g
+                  key={inst.id}
+                  transform={`translate(${inst.coordinates.x}, ${inst.coordinates.y})`}
+                  onMouseEnter={() =>
+                    setHoveredEntity({
+                      title: inst.name,
+                      description: `${inst.address} · Start Time: ${inst.schoolStartTime}`,
+                      details: `Type: ${inst.type} · Code: ${inst.code}`
+                    })
+                  }
+                  onMouseLeave={() => setHoveredEntity(null)}
+                >
                   <rect
-                    x="-120"
-                    y="-22"
-                    width="240"
-                    height="44"
+                    x="-125"
+                    y="-24"
+                    width="250"
+                    height="48"
                     rx="8"
-                    fill="#1e1b4b"
-                    stroke="#818cf8"
+                    fill={isPolytechnic ? '#1e1b4b' : '#142a42'}
+                    stroke={isPolytechnic ? '#a5b4fc' : '#38bdf8'}
                     strokeWidth="2"
                   />
+
                   <text
                     x="0"
-                    y="-2"
+                    y="-3"
                     textAnchor="middle"
-                    fill="#e0e7ff"
-                    fontSize="12"
+                    fill="#ffffff"
+                    fontSize="11.5"
                     fontWeight="bold"
                   >
-                    🏛️ {inst.name}
+                    {isPolytechnic ? '⚙️ ' : '🎓 '}{inst.name}
                   </text>
+
                   <text
                     x="0"
                     y="13"
                     textAnchor="middle"
-                    fill="#a5b4fc"
+                    fill={isPolytechnic ? '#c7d2fe' : '#bae6fd'}
                     fontSize="9.5"
                   >
-                    Starts {inst.schoolStartTime} • {inst.type}
+                    Bell: {inst.schoolStartTime} · {inst.type}
                   </text>
                 </g>
               );
             })}
 
-            {/* Vehicle Trip Status Badges (Clickable to toggle cancel) */}
+            {/* ============================================================== */}
+            {/* 4. ACTIVE & CANCELLED VEHICLE INDICATORS */}
+            {/* ============================================================== */}
             {trips.map((trip, idx) => {
-              // Position trip cards in corner or alongside routes
-              const badgeY = 390 + idx * 30;
-              const badgeX = 580;
+              const badgeY = 385 + idx * 34;
+              const badgeX = 575;
+              const isCancelled = trip.isCancelled;
 
               return (
                 <g
                   key={trip.id}
                   transform={`translate(${badgeX}, ${badgeY})`}
                   onClick={() => onToggleTrip(trip.id)}
+                  onMouseEnter={() =>
+                    setHoveredEntity({
+                      title: trip.vehicleName,
+                      description: `Driver: ${trip.driverName} · Capacity: ${trip.capacity} seats · Status: ${isCancelled ? 'CANCELLED' : 'ACTIVE'}`,
+                      details: `Click to ${isCancelled ? 'restore vehicle to active service' : 'simulate vehicle breakdown'}!`
+                    })
+                  }
+                  onMouseLeave={() => setHoveredEntity(null)}
                   style={{ cursor: 'pointer' }}
                   role="button"
                 >
-                  <title>{`Trip: ${trip.vehicleName} (${trip.capacity} seats). Status: ${trip.isCancelled ? 'CANCELLED: ' + trip.cancelReason : 'ACTIVE'}. Click to toggle cancellation.`}</title>
+                  <title>{`Trip: ${trip.vehicleName}. Click to toggle cancellation.`}</title>
+
                   <rect
                     x="0"
                     y="0"
-                    width="220"
-                    height="26"
-                    rx="4"
-                    fill={trip.isCancelled ? '#450a0a' : '#064e3b'}
-                    stroke={trip.isCancelled ? '#ef4444' : '#10b981'}
+                    width="240"
+                    height="28"
+                    rx="6"
+                    fill={isCancelled ? '#450a0a' : '#0f172a'}
+                    stroke={isCancelled ? '#ef4444' : '#10b981'}
                     strokeWidth="1.5"
                   />
+
                   <circle
-                    cx="14"
-                    cy="13"
+                    cx="15"
+                    cy="14"
                     r="5"
-                    fill={trip.isCancelled ? '#ef4444' : '#10b981'}
+                    fill={isCancelled ? '#ef4444' : '#10b981'}
                   />
+
                   <text
-                    x="26"
-                    y="17"
+                    x="28"
+                    y="18"
                     fill="#ffffff"
                     fontSize="10"
                     fontWeight="600"
                   >
-                    {trip.vehicleName.split('—')[0]} [{trip.capacity} seats]
+                    {trip.vehicleName.split('—')[0].trim()} [{trip.capacity} seats]
                   </text>
+
                   <text
-                    x="210"
-                    y="17"
+                    x="230"
+                    y="18"
                     textAnchor="end"
-                    fill={trip.isCancelled ? '#fca5a5' : '#a7f3d0'}
+                    fill={isCancelled ? '#fca5a5' : '#86efac'}
                     fontSize="9"
                     fontWeight="bold"
                   >
-                    {trip.isCancelled ? 'CANCELLED' : 'ACTIVE'}
+                    {isCancelled ? 'BREAKDOWN' : 'ACTIVE'}
                   </text>
                 </g>
               );
             })}
           </svg>
         </div>
-        <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '0.75rem', color: '#94a3b8' }}>
-          💡 <em>Tip: Click any road corridor above to simulate a wash-out/blockage, or click any vehicle card in the fleet panel to simulate mechanical breakdown.</em>
+
+        {/* Live Hover Information Strip */}
+        <div
+          style={{
+            background: '#131d2e',
+            border: '1px solid #1e293b',
+            borderRadius: '6px',
+            padding: '8px 14px',
+            marginTop: '12px',
+            fontSize: '0.8rem',
+            color: '#cbd5e1',
+            minHeight: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '8px'
+          }}
+        >
+          {hoveredEntity ? (
+            <div>
+              <strong style={{ color: '#38bdf8' }}>{hoveredEntity.title}: </strong>
+              <span>{hoveredEntity.description} </span>
+              {hoveredEntity.details && (
+                <span style={{ color: '#a5b4fc', fontStyle: 'italic' }}>— {hoveredEntity.details}</span>
+              )}
+            </div>
+          ) : (
+            <div style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Info size={14} className="text-primary" />
+              <span>
+                <b>Interactive Controls:</b> Click any road corridor to toggle road closure, or click any vehicle card in the lower right to trigger a breakdown.
+              </span>
+            </div>
+          )}
+
+          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            Topological Rural Network Schematic
+          </div>
         </div>
       </div>
     </div>
   );
 };
-

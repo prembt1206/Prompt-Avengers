@@ -2,7 +2,7 @@
  * RouteLess Domain Models & Type Definitions
  * 
  * Rural Student Transport Resilience & Recovery Allocation
- * Pure domain model representations for deterministic simulation.
+ * Comprehensive domain model with GIS, Fleet Telematics, RBAC, Notifications, and Audit Trails.
  */
 
 export interface Village {
@@ -10,6 +10,7 @@ export interface Village {
   name: string;
   panchayat: string;
   coordinates: { x: number; y: number }; // For schematic network visualizer
+  geoCoordinates?: { lat: number; lng: number }; // Real GIS coordinates for Leaflet OSM map
   description: string;
   connectivityType: 'All-Weather' | 'Fair-Weather' | 'Vulnerable River Crossing';
 }
@@ -20,6 +21,7 @@ export interface Institution {
   code: string;
   type: 'Higher Secondary School' | 'Polytechnic & Vocational ITI';
   coordinates: { x: number; y: number };
+  geoCoordinates?: { lat: number; lng: number }; // Real GIS coordinates
   schoolStartTime: string; // e.g. "08:30"
   address: string;
 }
@@ -35,6 +37,7 @@ export interface TransportConnection {
   roadType: 'Paved Highway' | 'All-Weather Tar' | 'Gravel Corridor' | 'Low-Lying Causeway';
   isBlocked: boolean;
   blockedReason?: string;
+  waypoints?: [number, number][]; // Array of [lat, lng] for accurate road geometry
 }
 
 export interface TripStop {
@@ -43,7 +46,16 @@ export interface TripStop {
   arrivalTime: string; // "07:15"
   departureTime: string; // "07:20"
   order: number;
+  geoCoordinates?: { lat: number; lng: number };
 }
+
+export type VehicleStatus =
+  | 'Available'
+  | 'Assigned'
+  | 'On Route'
+  | 'Delayed'
+  | 'Breakdown'
+  | 'Out of Service';
 
 export interface VehicleTrip {
   id: string;
@@ -51,6 +63,7 @@ export interface VehicleTrip {
   registrationNumber: string;
   vehicleType: 'Mini-Bus' | 'Maxi-Cab Van' | 'Rural Cruiser';
   driverName: string;
+  driverPhone?: string;
   capacity: number; // Editable by coordinator
   isCancelled: boolean;
   cancelReason?: string;
@@ -60,9 +73,35 @@ export interface VehicleTrip {
   finalArrivalTime: string; // Arrival at destination
   stops: TripStop[];
   pathConnectionIds: string[]; // Connections traversed in sequence
+  // Extended telemetry & tracking fields
+  status?: VehicleStatus;
+  occupiedSeats?: number;
+  availableSeats?: number;
+  currentLocation?: {
+    lat: number;
+    lng: number;
+    description: string;
+  };
+  simulatedProgress?: number; // 0.0 to 1.0 along route
+  estimatedArrivalMinutes?: number;
+  speedKmh?: number;
 }
 
 export type PriorityCategory = 'CRITICAL_EXAM' | 'LAB_PRACTICAL' | 'REGULAR_ATTENDANCE';
+
+export type StudentRequestStatus =
+  | 'Pending'
+  | 'Approved'
+  | 'Assigned'
+  | 'On Route'
+  | 'Delayed'
+  | 'Cancelled'
+  | 'Unassigned';
+
+export type TravelType =
+  | 'Regular school travel'
+  | 'Examination travel'
+  | 'Practical examination travel';
 
 export interface StudentRequest {
   id: string;
@@ -77,7 +116,12 @@ export interface StudentRequest {
   priorityCategory: PriorityCategory;
   submissionTimestamp: string;
   notes?: string;
-  isCustom?: boolean; // True if created by user via request form during demo
+  isCustom?: boolean;
+  // Extended fields
+  studentId?: string;
+  travelDate?: string;
+  travelType?: TravelType;
+  status?: StudentRequestStatus;
 }
 
 export interface Assignment {
@@ -94,6 +138,10 @@ export interface Assignment {
   dropoffTime: string;
   seatNumber: number;
   priorityCategory: PriorityCategory;
+  driverName?: string;
+  driverPhone?: string;
+  registrationNumber?: string;
+  pickupPointName?: string;
 }
 
 export type UnmetReasonCode =
@@ -129,6 +177,7 @@ export interface UnmetRequest {
   primaryReasonCode: UnmetReasonCode;
   honestExplanation: string;
   evaluatedTrips: EvaluatedTripCandidate[];
+  suggestedAlternativePickup?: string;
 }
 
 export interface TripUtilization {
@@ -188,4 +237,109 @@ export interface ComparisonDiff {
     baselineAllocated: number;
     recoveryAllocated: number;
   }[];
+}
+
+// --- USER & AUTHENTICATION TYPES ---
+export type UserRole = 'STUDENT' | 'COORDINATOR' | 'ADMINISTRATOR';
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  name: string;
+  role: UserRole;
+  email?: string;
+  villageId?: string;
+  villageName?: string;
+  destinationInstitutionId?: string;
+  destinationName?: string;
+  grade?: string;
+  phone?: string;
+}
+
+// --- NOTIFICATION TYPES ---
+export type NotificationType =
+  | 'ROAD_CLOSURE'
+  | 'VEHICLE_BREAKDOWN'
+  | 'ROUTE_CHANGE'
+  | 'PICKUP_POINT_CHANGE'
+  | 'TRANSPORT_DELAY'
+  | 'VEHICLE_REASSIGNMENT'
+  | 'TRANSPORT_CANCELLATION'
+  | 'ALLOCATION_CONFIRMED';
+
+export interface SystemNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  targetRole?: UserRole | 'ALL';
+  targetStudentName?: string;
+  targetStudentId?: string;
+  targetTripId?: string;
+  severity: 'info' | 'warning' | 'alert' | 'success';
+  suggestedAction?: string;
+}
+
+// --- AUDIT LOG TYPES ---
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  actor: string;
+  role: UserRole;
+  action: string;
+  details: string;
+  ipAddress?: string;
+}
+
+// --- ALTERNATIVE ROUTE TYPES ---
+export interface AlternativeRouteOption {
+  tripId: string;
+  originalPathConnectionIds: string[];
+  alternativePathConnectionIds: string[];
+  originalDistanceKm: number;
+  alternativeDistanceKm: number;
+  originalMinutes: number;
+  alternativeMinutes: number;
+  viaDescription: string;
+  isFeasible: boolean;
+  reason?: string;
+}
+
+// --- FAIRNESS & EQUITY TYPES ---
+export interface VillageFairnessMetric {
+  villageId: string;
+  villageName: string;
+  panchayat: string;
+  totalDemand: number;
+  assignedCount: number;
+  unmetCount: number;
+  fulfillmentPct: number;
+  connectivityType: string;
+  vulnerabilityLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  vulnerabilityReasons: string[];
+  recommendation: string;
+}
+
+// --- WHAT-IF SIMULATION TYPES ---
+export interface WhatIfScenarioConfig {
+  id: string;
+  name: string;
+  description: string;
+  category: 'BREAKDOWN' | 'CLOSURE' | 'DEMAND_SURGE' | 'CAPACITY_CUT' | 'MULTI_DISRUPTION';
+  breakdownTripIds: string[];
+  blockedConnectionIds: string[];
+  demandSurgeCount?: number;
+  capacityReductionPct?: number;
+}
+
+export interface SimulationResult {
+  scenarioName: string;
+  baseline: AllocationResult;
+  simulated: AllocationResult;
+  strandedStudents: UnmetRequest[];
+  recoveredStudents: Assignment[];
+  recoveryRatePct: number;
+  capacityLossPct: number;
 }

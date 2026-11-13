@@ -1,23 +1,23 @@
 /**
  * RouteLess Local Storage & State Persistence Service
  * 
- * IMPORTANT DISCLAIMER:
- * LocalStorage persists data solely within the current browser's local origin.
- * It is NOT shared multi-user storage, is NOT an authenticated backend,
- * and MUST NEVER hold real, sensitive personal student information.
- * All data in this application is strictly synthetic demonstration data.
+ * Manages local persistence with zero-dependency browser fallback,
+ * while safely isolating demonstration records.
  */
 
 import {
   StudentRequest,
   VehicleTrip,
   TransportConnection,
-  AllocationResult
+  AllocationResult,
+  UserProfile,
+  UserRole
 } from '../types';
 import {
   SEEDED_STUDENT_REQUESTS,
   SEEDED_VEHICLE_TRIPS,
-  SEEDED_CONNECTIONS
+  SEEDED_CONNECTIONS,
+  SEEDED_USERS
 } from '../models/seedData';
 
 const KEYS = {
@@ -26,11 +26,14 @@ const KEYS = {
   CONNECTIONS: 'routeless_mangaluru_connections_v2',
   BASELINE: 'routeless_mangaluru_baseline_v2',
   RECOVERY: 'routeless_mangaluru_recovery_v2',
-  USER_VIEW: 'routeless_mangaluru_user_view_v2'
+  USER_VIEW: 'routeless_mangaluru_user_view_v2',
+  USERS: 'routeless_users_v2',
+  ACTIVE_USER: 'routeless_current_user_v2'
 };
 
 export const StorageService = {
   getRequests(): StudentRequest[] {
+    if (typeof localStorage === 'undefined') return [...SEEDED_STUDENT_REQUESTS];
     try {
       const data = localStorage.getItem(KEYS.REQUESTS);
       if (data) return JSON.parse(data);
@@ -41,6 +44,7 @@ export const StorageService = {
   },
 
   saveRequests(requests: StudentRequest[]): void {
+    if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(KEYS.REQUESTS, JSON.stringify(requests));
     } catch (e) {
@@ -49,6 +53,7 @@ export const StorageService = {
   },
 
   getTrips(): VehicleTrip[] {
+    if (typeof localStorage === 'undefined') return JSON.parse(JSON.stringify(SEEDED_VEHICLE_TRIPS));
     try {
       const data = localStorage.getItem(KEYS.TRIPS);
       if (data) return JSON.parse(data);
@@ -59,6 +64,7 @@ export const StorageService = {
   },
 
   saveTrips(trips: VehicleTrip[]): void {
+    if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(KEYS.TRIPS, JSON.stringify(trips));
     } catch (e) {
@@ -67,6 +73,7 @@ export const StorageService = {
   },
 
   getConnections(): TransportConnection[] {
+    if (typeof localStorage === 'undefined') return JSON.parse(JSON.stringify(SEEDED_CONNECTIONS));
     try {
       const data = localStorage.getItem(KEYS.CONNECTIONS);
       if (data) return JSON.parse(data);
@@ -77,6 +84,7 @@ export const StorageService = {
   },
 
   saveConnections(connections: TransportConnection[]): void {
+    if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(KEYS.CONNECTIONS, JSON.stringify(connections));
     } catch (e) {
@@ -85,6 +93,7 @@ export const StorageService = {
   },
 
   getBaselineResult(): AllocationResult | null {
+    if (typeof localStorage === 'undefined') return null;
     try {
       const data = localStorage.getItem(KEYS.BASELINE);
       if (data) return JSON.parse(data);
@@ -95,6 +104,7 @@ export const StorageService = {
   },
 
   saveBaselineResult(result: AllocationResult | null): void {
+    if (typeof localStorage === 'undefined') return;
     try {
       if (result) {
         localStorage.setItem(KEYS.BASELINE, JSON.stringify(result));
@@ -107,6 +117,7 @@ export const StorageService = {
   },
 
   getRecoveryResult(): AllocationResult | null {
+    if (typeof localStorage === 'undefined') return null;
     try {
       const data = localStorage.getItem(KEYS.RECOVERY);
       if (data) return JSON.parse(data);
@@ -117,6 +128,7 @@ export const StorageService = {
   },
 
   saveRecoveryResult(result: AllocationResult | null): void {
+    if (typeof localStorage === 'undefined') return;
     try {
       if (result) {
         localStorage.setItem(KEYS.RECOVERY, JSON.stringify(result));
@@ -128,44 +140,76 @@ export const StorageService = {
     }
   },
 
-  getUserView(): 'COORDINATOR' | 'STUDENT' {
+  getUserView(): 'COORDINATOR' | 'STUDENT' | 'ADMINISTRATOR' {
+    if (typeof localStorage === 'undefined') return 'COORDINATOR';
     try {
       const data = localStorage.getItem(KEYS.USER_VIEW);
-      if (data === 'STUDENT' || data === 'COORDINATOR') return data;
+      if (data === 'COORDINATOR' || data === 'STUDENT' || data === 'ADMINISTRATOR') return data;
     } catch (e) {
-      console.warn('Could not read view mode from localStorage', e);
+      console.warn('Could not read user view from localStorage', e);
     }
     return 'COORDINATOR';
   },
 
-  saveUserView(view: 'COORDINATOR' | 'STUDENT'): void {
+  saveUserView(view: 'COORDINATOR' | 'STUDENT' | 'ADMINISTRATOR'): void {
+    if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(KEYS.USER_VIEW, view);
     } catch (e) {
-      console.warn('Could not save view mode to localStorage', e);
+      console.warn('Could not save user view to localStorage', e);
     }
   },
 
+  getUsers(): UserProfile[] {
+    if (typeof localStorage === 'undefined') return [...SEEDED_USERS];
+    try {
+      const data = localStorage.getItem(KEYS.USERS);
+      if (data) return JSON.parse(data);
+    } catch (e) {
+      console.warn('Could not read users from storage', e);
+    }
+    return [...SEEDED_USERS];
+  },
+
+  saveUsers(users: UserProfile[]): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+    } catch (e) {
+      console.warn('Could not save users to storage', e);
+    }
+  },
+
+  /**
+   * Resets all entities back to clean initial seed data.
+   */
   resetAllToDefaults(): {
     requests: StudentRequest[];
     trips: VehicleTrip[];
     connections: TransportConnection[];
   } {
-    try {
-      localStorage.removeItem(KEYS.REQUESTS);
-      localStorage.removeItem(KEYS.TRIPS);
-      localStorage.removeItem(KEYS.CONNECTIONS);
-      localStorage.removeItem(KEYS.BASELINE);
-      localStorage.removeItem(KEYS.RECOVERY);
-    } catch (e) {
-      console.warn('Could not clear localStorage', e);
+    const cleanRequests = [...SEEDED_STUDENT_REQUESTS];
+    const cleanTrips = JSON.parse(JSON.stringify(SEEDED_VEHICLE_TRIPS));
+    const cleanConnections = JSON.parse(JSON.stringify(SEEDED_CONNECTIONS));
+
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(KEYS.REQUESTS, JSON.stringify(cleanRequests));
+        localStorage.setItem(KEYS.TRIPS, JSON.stringify(cleanTrips));
+        localStorage.setItem(KEYS.CONNECTIONS, JSON.stringify(cleanConnections));
+        localStorage.removeItem(KEYS.BASELINE);
+        localStorage.removeItem(KEYS.RECOVERY);
+        localStorage.removeItem('routeless_audit_logs_v2');
+        localStorage.removeItem('routeless_notifications_v2');
+      } catch (e) {
+        console.warn('Could not reset localStorage data', e);
+      }
     }
 
     return {
-      requests: JSON.parse(JSON.stringify(SEEDED_STUDENT_REQUESTS)),
-      trips: JSON.parse(JSON.stringify(SEEDED_VEHICLE_TRIPS)),
-      connections: JSON.parse(JSON.stringify(SEEDED_CONNECTIONS))
+      requests: cleanRequests,
+      trips: cleanTrips,
+      connections: cleanConnections
     };
   }
 };
-

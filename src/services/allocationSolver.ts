@@ -338,7 +338,8 @@ export function runAllocationSolver(
       } else {
         const allCancelled = destinationAndOriginTrips.every(t => t.isCancelled);
         const allBlocked = destinationAndOriginTrips.every(t => t.isBlocked);
-        const allCapacityFull = destinationAndOriginTrips.every(t => !t.capacityAvailable && !t.isCancelled && !t.isBlocked);
+        const allTimingIncompatible = destinationAndOriginTrips.every(t => !t.reachesInTime && !t.isCancelled && !t.isBlocked);
+        const allCapacityFull = destinationAndOriginTrips.every(t => !t.capacityAvailable && !t.isCancelled && !t.isBlocked && t.reachesInTime);
 
         if (allCancelled) {
           primaryReasonCode = 'TRIP_CANCELLED';
@@ -348,6 +349,10 @@ export function runAllocationSolver(
           primaryReasonCode = 'ROUTE_BLOCKED';
           const reasons = destinationAndOriginTrips.map(t => t.blockedReason || 'road obstruction').join(', ');
           honestExplanation = `The transport corridor from ${req.originVillageName} to ${req.destinationName} is impassable due to a blocked route segment (${reasons}).`;
+        } else if (allTimingIncompatible) {
+          primaryReasonCode = 'TIMING_INCOMPATIBLE';
+          const arrivalTimes = destinationAndOriginTrips.map(t => `${t.vehicleName} arrives at ${tripTrackers.get(t.tripId)?.trip.finalArrivalTime}`).join(', ');
+          honestExplanation = `Scheduled vehicles cannot meet the requested arrival deadline of ${req.requiredArrivalTime} (${arrivalTimes}).`;
         } else if (allCapacityFull) {
           primaryReasonCode = 'CAPACITY_EXCEEDED';
           const tripDetails = destinationAndOriginTrips
@@ -358,12 +363,16 @@ export function runAllocationSolver(
           // Mixed reasons
           const hasCancelled = destinationAndOriginTrips.some(t => t.isCancelled);
           const hasBlocked = destinationAndOriginTrips.some(t => t.isBlocked);
+          const hasTimingMismatch = destinationAndOriginTrips.some(t => !t.reachesInTime);
           if (hasBlocked) {
             primaryReasonCode = 'ROUTE_BLOCKED';
             honestExplanation = `Connecting route from ${req.originVillageName} is blocked, and alternate vehicles lack sufficient remaining capacity.`;
           } else if (hasCancelled) {
             primaryReasonCode = 'TRIP_CANCELLED';
             honestExplanation = `Primary trip serving ${req.originVillageName} was cancelled, and remaining feasible trips are fully booked.`;
+          } else if (hasTimingMismatch && !destinationAndOriginTrips.some(t => t.reachesInTime && t.capacityAvailable)) {
+            primaryReasonCode = 'TIMING_INCOMPATIBLE';
+            honestExplanation = `Trips serving ${req.originVillageName} arrive after the required deadline ${req.requiredArrivalTime}.`;
           } else {
             primaryReasonCode = 'CAPACITY_EXCEEDED';
             honestExplanation = `No remaining unallocated seat on any vehicle operating from ${req.originVillageName} to ${req.destinationName} before ${req.requiredArrivalTime}.`;
@@ -494,9 +503,21 @@ export function computeAllocationDiff(
     r => !baselineAssignmentsMap.has(r.requestId)
   );
 
+  const capacityDelta = baseline.tripUtilization.map(baseUtil => {
+    const recoveryUtil = recovery.tripUtilization.find(r => r.tripId === baseUtil.tripId);
+    return {
+      tripId: baseUtil.tripId,
+      vehicleName: baseUtil.vehicleName,
+      baselineAllocated: baseUtil.allocatedSeats,
+      recoveryAllocated: recoveryUtil?.allocatedSeats ?? 0,
+      delta: (recoveryUtil?.allocatedSeats ?? 0) - baseUtil.allocatedSeats
+    };
+  });
+
   return {
     displacedAssignments,
-    newlyAssigned
+    newlyAssigned,
+    capacityDelta
   };
 }
 

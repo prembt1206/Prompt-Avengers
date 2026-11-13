@@ -1,4 +1,4 @@
-import { Village, Institution, TransportConnection, VehicleTrip, StudentRequest } from '../types';
+import { Village, Institution, TransportConnection, VehicleTrip, StudentRequest, UserProfile } from '../types';
 
 export const SEEDED_VILLAGES: Village[] = [
   {
@@ -6,6 +6,7 @@ export const SEEDED_VILLAGES: Village[] = [
     name: 'Pavoor Riverine Fringe',
     panchayat: 'Pavoor Grama Panchayat, Mangaluru Taluq',
     coordinates: { x: 90, y: 120 },
+    geoCoordinates: { lat: 12.8530, lng: 74.9040 },
     description: 'Remote interior hamlet flanked by Netravati river backwaters; accessed via single vulnerable unpaved corridor.',
     connectivityType: 'Fair-Weather'
   },
@@ -14,6 +15,7 @@ export const SEEDED_VILLAGES: Village[] = [
     name: 'Farangipete Junction',
     panchayat: 'Bantwal Mandal / Mangaluru East Arterial',
     coordinates: { x: 300, y: 220 },
+    geoCoordinates: { lat: 12.8680, lng: 74.9602 },
     description: 'Central transit crossroads connecting rural river valleys with Mangaluru city educational institutes.',
     connectivityType: 'All-Weather'
   },
@@ -22,6 +24,7 @@ export const SEEDED_VILLAGES: Village[] = [
     name: 'Kalladka Foothills',
     panchayat: 'Golthamajalu / Kalladka Grama Panchayat',
     coordinates: { x: 120, y: 340 },
+    geoCoordinates: { lat: 12.8210, lng: 75.0505 },
     description: 'Elevated Western Ghat foothill settlement with winding road gradients and isolated student clusters.',
     connectivityType: 'Fair-Weather'
   },
@@ -30,6 +33,7 @@ export const SEEDED_VILLAGES: Village[] = [
     name: 'Ganjimutt Valley',
     panchayat: 'Ganjimutt Grama Panchayat, Mangaluru North',
     coordinates: { x: 490, y: 340 },
+    geoCoordinates: { lat: 12.9550, lng: 74.9520 },
     description: 'Agrarian river basin village along the Gurupura valley; secondary transit waypoint.',
     connectivityType: 'All-Weather'
   },
@@ -38,6 +42,7 @@ export const SEEDED_VILLAGES: Village[] = [
     name: 'Gurupura Riverbank',
     panchayat: 'Gurupura Grama Panchayat, Mangaluru',
     coordinates: { x: 670, y: 220 },
+    geoCoordinates: { lat: 12.9320, lng: 74.9310 },
     description: 'Low-lying riverbank settlement along the Phalguni (Gurupura) river; causeway submerges during heavy coastal monsoon runoff.',
     connectivityType: 'Vulnerable River Crossing'
   }
@@ -50,6 +55,7 @@ export const SEEDED_INSTITUTIONS: Institution[] = [
     code: 'ST-ALOYSIUS-MLR',
     type: 'Higher Secondary School',
     coordinates: { x: 300, y: 40 },
+    geoCoordinates: { lat: 12.8718, lng: 74.8436 },
     schoolStartTime: '08:30',
     address: 'Light House Hill Road, Hampankatta, Mangaluru — 575001'
   },
@@ -59,6 +65,7 @@ export const SEEDED_INSTITUTIONS: Institution[] = [
     code: 'KPT-KADRI-MLR',
     type: 'Polytechnic & Vocational ITI',
     coordinates: { x: 300, y: 440 },
+    geoCoordinates: { lat: 12.8872, lng: 74.8624 },
     schoolStartTime: '08:45',
     address: 'KPT Junction, Kadri Hills, Mangaluru — 575004'
   }
@@ -74,7 +81,12 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     distanceKm: 12,
     travelMinutes: 25,
     roadType: 'Gravel Corridor',
-    isBlocked: false
+    isBlocked: false,
+    waypoints: [
+      [12.8530, 74.9040],
+      [12.8580, 74.9300],
+      [12.8680, 74.9602]
+    ]
   },
   {
     id: 'seg-far-aloysius',
@@ -85,7 +97,13 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     distanceKm: 14,
     travelMinutes: 25,
     roadType: 'All-Weather Tar',
-    isBlocked: false
+    isBlocked: false,
+    waypoints: [
+      [12.8680, 74.9602],
+      [12.8690, 74.9100],
+      [12.8705, 74.8700],
+      [12.8718, 74.8436]
+    ]
   },
   {
     id: 'seg-kal-far',
@@ -96,7 +114,12 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     distanceKm: 10,
     travelMinutes: 20,
     roadType: 'Gravel Corridor',
-    isBlocked: false
+    isBlocked: false,
+    waypoints: [
+      [12.8210, 75.0505],
+      [12.8450, 75.0000],
+      [12.8680, 74.9602]
+    ]
   },
   {
     id: 'seg-far-kpt',
@@ -107,7 +130,13 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     distanceKm: 16,
     travelMinutes: 30,
     roadType: 'All-Weather Tar',
-    isBlocked: false
+    isBlocked: false,
+    waypoints: [
+      [12.8680, 74.9602],
+      [12.8750, 74.9100],
+      [12.8850, 74.8750],
+      [12.8872, 74.8624]
+    ]
   },
   {
     id: 'seg-guru-ganji',
@@ -119,7 +148,12 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     travelMinutes: 20,
     roadType: 'Low-Lying Causeway',
     isBlocked: false,
-    blockedReason: undefined
+    blockedReason: undefined,
+    waypoints: [
+      [12.9320, 74.9310],
+      [12.9430, 74.9400],
+      [12.9550, 74.9520]
+    ]
   },
   {
     id: 'seg-ganji-far',
@@ -130,7 +164,12 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     distanceKm: 11,
     travelMinutes: 20,
     roadType: 'Gravel Corridor',
-    isBlocked: false
+    isBlocked: false,
+    waypoints: [
+      [12.9550, 74.9520],
+      [12.9100, 74.9580],
+      [12.8680, 74.9602]
+    ]
   },
   {
     id: 'seg-ganji-aloysius',
@@ -141,7 +180,13 @@ export const SEEDED_CONNECTIONS: TransportConnection[] = [
     distanceKm: 18,
     travelMinutes: 35,
     roadType: 'Paved Highway',
-    isBlocked: false
+    isBlocked: false,
+    waypoints: [
+      [12.9550, 74.9520],
+      [12.9300, 74.8900],
+      [12.8900, 74.8550],
+      [12.8718, 74.8436]
+    ]
   }
 ];
 
@@ -152,26 +197,38 @@ export const SEEDED_VEHICLE_TRIPS: VehicleTrip[] = [
     registrationNumber: 'KA-19-F-1044',
     vehicleType: 'Mini-Bus',
     driverName: 'Shekhara Poojary',
-    capacity: 6, // Deliberately limited capacity
+    driverPhone: '+91 94481 20144',
+    capacity: 6,
     isCancelled: false,
     destinationInstitutionId: 'inst-aloysius',
     destinationName: 'St. Aloysius High School & PU College',
     departureTime: '07:15',
     finalArrivalTime: '08:15',
+    status: 'Available',
+    speedKmh: 38,
+    currentLocation: {
+      lat: 12.8530,
+      lng: 74.9040,
+      description: 'Pavoor Terminal Depot'
+    },
+    simulatedProgress: 0.15,
+    estimatedArrivalMinutes: 45,
     stops: [
       {
         villageId: 'vil-pavoor',
         villageName: 'Pavoor Riverine Fringe',
         arrivalTime: '07:15',
         departureTime: '07:20',
-        order: 1
+        order: 1,
+        geoCoordinates: { lat: 12.8530, lng: 74.9040 }
       },
       {
         villageId: 'vil-farangipete',
         villageName: 'Farangipete Junction',
         arrivalTime: '07:45',
         departureTime: '07:50',
-        order: 2
+        order: 2,
+        geoCoordinates: { lat: 12.8680, lng: 74.9602 }
       }
     ],
     pathConnectionIds: ['seg-pav-far', 'seg-far-aloysius']
@@ -182,63 +239,88 @@ export const SEEDED_VEHICLE_TRIPS: VehicleTrip[] = [
     registrationNumber: 'KA-19-VA-5012',
     vehicleType: 'Maxi-Cab Van',
     driverName: 'Ganesh Shetty',
-    capacity: 4, // Deliberately limited capacity
+    driverPhone: '+91 98452 35012',
+    capacity: 4,
     isCancelled: false,
     destinationInstitutionId: 'inst-kpt',
     destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
     departureTime: '07:20',
     finalArrivalTime: '08:25',
+    status: 'Available',
+    speedKmh: 42,
+    currentLocation: {
+      lat: 12.8210,
+      lng: 75.0505,
+      description: 'Kalladka Foothills Depot'
+    },
+    simulatedProgress: 0.20,
+    estimatedArrivalMinutes: 50,
     stops: [
       {
         villageId: 'vil-kalladka',
         villageName: 'Kalladka Foothills',
         arrivalTime: '07:20',
         departureTime: '07:25',
-        order: 1
+        order: 1,
+        geoCoordinates: { lat: 12.8210, lng: 75.0505 }
       },
       {
         villageId: 'vil-farangipete',
         villageName: 'Farangipete Junction',
-        arrivalTime: '07:50',
-        departureTime: '07:55',
-        order: 2
+        arrivalTime: '07:45',
+        departureTime: '07:50',
+        order: 2,
+        geoCoordinates: { lat: 12.8680, lng: 74.9602 }
       }
     ],
     pathConnectionIds: ['seg-kal-far', 'seg-far-kpt']
   },
   {
     id: 'trip-03',
-    vehicleName: 'Cruiser 03 — Kudla Community Rural Cruiser',
-    registrationNumber: 'KA-19-CR-8821',
+    vehicleName: 'Cruiser 03 — Kudla Community Cruiser',
+    registrationNumber: 'KA-19-MC-8840',
     vehicleType: 'Rural Cruiser',
-    driverName: 'Anand D’Souza',
-    capacity: 5, // Deliberately limited capacity
+    driverName: 'Abdul Razak',
+    driverPhone: '+91 97410 88840',
+    capacity: 5,
     isCancelled: false,
     destinationInstitutionId: 'inst-aloysius',
     destinationName: 'St. Aloysius High School & PU College',
     departureTime: '07:10',
     finalArrivalTime: '08:20',
+    status: 'Available',
+    speedKmh: 40,
+    currentLocation: {
+      lat: 12.9320,
+      lng: 74.9310,
+      description: 'Gurupura Causeway Bridge'
+    },
+    simulatedProgress: 0.10,
+    estimatedArrivalMinutes: 55,
     stops: [
       {
         villageId: 'vil-gurupura',
         villageName: 'Gurupura Riverbank',
         arrivalTime: '07:10',
         departureTime: '07:15',
-        order: 1
+        order: 1,
+        geoCoordinates: { lat: 12.9320, lng: 74.9310 }
       },
       {
         villageId: 'vil-ganjimutt',
         villageName: 'Ganjimutt Valley',
         arrivalTime: '07:35',
         departureTime: '07:40',
-        order: 2
+        order: 2,
+        geoCoordinates: { lat: 12.9550, lng: 74.9520 }
       },
       {
         villageId: 'vil-farangipete',
         villageName: 'Farangipete Junction',
         arrivalTime: '07:55',
         departureTime: '08:00',
-        order: 3
+        order: 3,
+        geoCoordinates: { lat: 12.8680, lng: 74.9602 }
       }
     ],
     pathConnectionIds: ['seg-guru-ganji', 'seg-ganji-far', 'seg-far-aloysius']
@@ -258,13 +340,13 @@ export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
     destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
-    submissionTimestamp: '2026-11-13T06:15:00Z',
-    notes: 'Karnataka SSLC State Board Science Practical Exam'
+    submissionTimestamp: '2026-11-13T06:01:00Z',
+    notes: 'Karnataka SSLC Board Practical Exam (Science Lab)'
   },
   {
     id: 'req-pav-02',
-    studentName: 'Prajwal Shetty',
-    gradeOrStream: 'Grade 10',
+    studentName: 'Praveen D’Souza',
+    gradeOrStream: 'Grade 12 - Science (PUC)',
     originVillageId: 'vil-pavoor',
     originVillageName: 'Pavoor Riverine Fringe',
     destinationInstitutionId: 'inst-aloysius',
@@ -272,12 +354,12 @@ export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
     destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
-    submissionTimestamp: '2026-11-13T06:20:00Z',
-    notes: 'Mathematics State Preparatory Exam'
+    submissionTimestamp: '2026-11-13T06:04:00Z',
+    notes: 'Karnataka PUC Board Physics Practical Examination'
   },
   {
     id: 'req-pav-03',
-    studentName: 'Vaishnavi Bhat',
+    studentName: 'Rithesh Kumar',
     gradeOrStream: 'Grade 11 - Science (PUC)',
     originVillageId: 'vil-pavoor',
     originVillageName: 'Pavoor Riverine Fringe',
@@ -286,12 +368,12 @@ export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
     destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'LAB_PRACTICAL',
-    submissionTimestamp: '2026-11-13T06:22:00Z',
-    notes: 'Physics laboratory practical attendance mandatory'
+    submissionTimestamp: '2026-11-13T06:15:00Z',
+    notes: 'Chemistry laboratory compulsory titration session'
   },
   {
     id: 'req-pav-04',
-    studentName: 'Chethan Kulal',
+    studentName: 'Lavanya Rai',
     gradeOrStream: 'Grade 9',
     originVillageId: 'vil-pavoor',
     originVillageName: 'Pavoor Riverine Fringe',
@@ -300,42 +382,28 @@ export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
     destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'REGULAR_ATTENDANCE',
-    submissionTimestamp: '2026-11-13T06:25:00Z',
-    notes: 'Daily high school curriculum class'
+    submissionTimestamp: '2026-11-13T06:40:00Z',
+    notes: 'Regular curriculum attendance'
   },
 
-  // --- Farangipete Junction (4 requests -> 2 to St. Aloysius, 2 to KPT Kadri) ---
+  // --- Farangipete Junction (4 requests -> 3 to St. Aloysius, 1 to KPT) ---
   {
     id: 'req-far-01',
-    studentName: 'Suhas Rai',
-    gradeOrStream: 'Diploma Mechanical Year 2 (KPT)',
+    studentName: 'Shreya Rai',
+    gradeOrStream: 'Grade 12 - Science (PUC)',
     originVillageId: 'vil-farangipete',
     originVillageName: 'Farangipete Junction',
-    destinationInstitutionId: 'inst-kpt',
-    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
-    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
-    requiredArrivalTime: '08:45',
-    priorityCategory: 'LAB_PRACTICAL',
-    submissionTimestamp: '2026-11-13T06:10:00Z',
-    notes: 'KPT Central Mechanical Foundry Workshop assessment'
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    destinationInstitutionName: 'St. Aloysius High School & PU College',
+    requiredArrivalTime: '08:30',
+    priorityCategory: 'CRITICAL_EXAM',
+    submissionTimestamp: '2026-11-13T06:03:00Z',
+    notes: 'Pre-University Mathematics Preparatory Exam'
   },
   {
     id: 'req-far-02',
-    studentName: 'Ashwitha D’Souza',
-    gradeOrStream: 'Diploma EEE Year 1 (KPT)',
-    originVillageId: 'vil-farangipete',
-    originVillageName: 'Farangipete Junction',
-    destinationInstitutionId: 'inst-kpt',
-    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
-    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
-    requiredArrivalTime: '08:45',
-    priorityCategory: 'REGULAR_ATTENDANCE',
-    submissionTimestamp: '2026-11-13T06:30:00Z',
-    notes: 'Electrical Circuits lecture at KPT Kadri'
-  },
-  {
-    id: 'req-far-03',
-    studentName: 'Shravan Alva',
+    studentName: 'Naveen Kotian',
     gradeOrStream: 'Grade 10',
     originVillageId: 'vil-farangipete',
     originVillageName: 'Farangipete Junction',
@@ -344,13 +412,13 @@ export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
     destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'CRITICAL_EXAM',
-    submissionTimestamp: '2026-11-13T06:12:00Z',
-    notes: 'SSLC Model Pre-Board Exam'
+    submissionTimestamp: '2026-11-13T06:07:00Z',
+    notes: 'SSLC Model Examination (Social Studies)'
   },
   {
-    id: 'req-far-04',
-    studentName: 'Meghana Acharya',
-    gradeOrStream: 'Grade 12 - Commerce (PUC)',
+    id: 'req-far-03',
+    studentName: 'Ayesha Banu',
+    gradeOrStream: 'Grade 11 - Commerce (PUC)',
     originVillageId: 'vil-farangipete',
     originVillageName: 'Farangipete Junction',
     destinationInstitutionId: 'inst-aloysius',
@@ -358,24 +426,38 @@ export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
     destinationInstitutionName: 'St. Aloysius High School & PU College',
     requiredArrivalTime: '08:30',
     priorityCategory: 'REGULAR_ATTENDANCE',
-    submissionTimestamp: '2026-11-13T06:40:00Z',
-    notes: 'Accountancy seminar at St. Aloysius'
+    submissionTimestamp: '2026-11-13T06:30:00Z',
+    notes: 'Accountancy core morning class'
   },
-
-  // --- Kalladka Foothills (3 requests -> Destination: KPT Kadri) ---
   {
-    id: 'req-kal-01',
-    studentName: 'Rakshith Kotian',
-    gradeOrStream: 'Diploma Civil Year 1 (KPT)',
-    originVillageId: 'vil-kalladka',
-    originVillageName: 'Kalladka Foothills',
+    id: 'req-far-04',
+    studentName: 'Sanjay Kulal',
+    gradeOrStream: 'Diploma Mechanical Year 2 (KPT)',
+    originVillageId: 'vil-farangipete',
+    originVillageName: 'Farangipete Junction',
     destinationInstitutionId: 'inst-kpt',
     destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
     destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
     requiredArrivalTime: '08:45',
     priorityCategory: 'LAB_PRACTICAL',
     submissionTimestamp: '2026-11-13T06:18:00Z',
-    notes: 'Highway & Surveying field exercise at KPT'
+    notes: 'KPT CNC Workshop machinery practical exam'
+  },
+
+  // --- Kalladka Foothills (3 requests -> Destination: KPT Kadri) ---
+  {
+    id: 'req-kal-01',
+    studentName: 'Chethan Alva',
+    gradeOrStream: 'Diploma Electrical Year 3 (KPT)',
+    originVillageId: 'vil-kalladka',
+    originVillageName: 'Kalladka Foothills',
+    destinationInstitutionId: 'inst-kpt',
+    destinationName: 'Karnataka (Govt) Polytechnic (KPT)',
+    destinationInstitutionName: 'Karnataka (Govt) Polytechnic (KPT)',
+    requiredArrivalTime: '08:45',
+    priorityCategory: 'CRITICAL_EXAM',
+    submissionTimestamp: '2026-11-13T06:00:00Z',
+    notes: 'Final Year Electrical Machine Design Viva-Voce'
   },
   {
     id: 'req-kal-02',
@@ -492,5 +574,50 @@ export const SEEDED_STUDENT_REQUESTS: StudentRequest[] = [
     priorityCategory: 'REGULAR_ATTENDANCE',
     submissionTimestamp: '2026-11-13T06:50:00Z',
     notes: 'Secondary science lesson'
+  }
+];
+
+export const SEEDED_USERS: UserProfile[] = [
+  {
+    id: 'usr-coord',
+    username: 'coordinator',
+    name: 'Pooja Hegde',
+    role: 'COORDINATOR',
+    email: 'pooja.hegde@routeless.gov.in',
+    phone: '+91 94812 34567'
+  },
+  {
+    id: 'usr-student-deeksha',
+    username: 'deeksha',
+    name: 'Deeksha Poojary',
+    role: 'STUDENT',
+    email: 'deeksha.p@gmail.com',
+    villageId: 'vil-pavoor',
+    villageName: 'Pavoor Riverine Fringe',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    grade: 'Grade 10',
+    phone: '+91 98801 23456'
+  },
+  {
+    id: 'usr-student-shreya',
+    username: 'shreya',
+    name: 'Shreya Rai',
+    role: 'STUDENT',
+    email: 'shreya.rai@gmail.com',
+    villageId: 'vil-farangipete',
+    villageName: 'Farangipete Junction',
+    destinationInstitutionId: 'inst-aloysius',
+    destinationName: 'St. Aloysius High School & PU College',
+    grade: 'Grade 12 - Science (PUC)',
+    phone: '+91 98802 34567'
+  },
+  {
+    id: 'usr-admin',
+    username: 'admin',
+    name: 'Regional Transport Officer',
+    role: 'ADMINISTRATOR',
+    email: 'rto.mangaluru@dk.gov.in',
+    phone: '+91 824 2420000'
   }
 ];

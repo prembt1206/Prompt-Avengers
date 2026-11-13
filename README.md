@@ -1,142 +1,183 @@
-# RouteLess: The Last Mile
+# RouteLess: The Last Mile (v2.0 Upgrade)
 
 > **"When a bus stops, learning should not."**  
-> AI-Powered Rural Transportation Resilience & Dynamic Recovery Prototype
+> AI-Powered Rural Transportation Resilience & Dynamic Disruption Recovery Platform
 
-[![Automated Tests](https://img.shields.io/badge/Tests-5%20Passing-emerald)](https://github.com/prembt1206/Prompt-Avengers)
+[![Automated Tests](https://img.shields.io/badge/Tests-17%20Passing-emerald)](https://github.com/prembt1206/routeless)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/badge/Build-Production%20Ready-brightgreen)](https://github.com/prembt1206/Prompt-Avengers)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue)](https://prembt1206.github.io/Prompt-Avengers/)
+[![Build Status](https://img.shields.io/badge/Build-Production%20Ready-brightgreen)](https://github.com/prembt1206/routeless)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue)](https://prembt1206.github.io/routeless/)
 
 ---
 
 ## ⚠️ Important Simulation Notice
 
-> **Simulation — not a live transport service.**  
+> **Simulation Prototype — Operational Research Demonstration.**  
 > RouteLess is a synthetic operational research prototype designed for demonstration and evaluation under the *ROUTELESS: THE LAST MILE — AI-Powered Rural Transportation Challenge*.  
-> It does not connect to live government databases, real-time GPS sensors, or actual emergency dispatch services. No verified transport safety certification or official government affiliation is implied. All villages, institutions, roads, vehicles, and student records are fictional.
+> It models genuine topological and geographical corridors across the Dakshina Kannada / Mangaluru rural-suburban region. It features a clearly labelled **Simulated GPS Telematics Mode** designed with an adapter pattern for real AIS-140 / Traccar telematics integration. All student records are synthetic demonstration data.
 
 ---
 
 ## 🎯 Product Statement & Purpose
 
-In rural and tribal regions, physical distance and unpredictable infrastructure create severe educational fragility. A single disabled mini-bus or a flooded causeway can instantly cut off dozens of students from attending secondary school exams or polytechnic laboratory sessions.
+In rural and tribal regions, physical distance and vulnerable infrastructure create severe educational fragility. A single disabled mini-bus or a flooded causeway can instantly cut off dozens of students from attending secondary school exams or polytechnic laboratory sessions.
 
 **RouteLess** solves this last-mile vulnerability by providing:
-1. An accessible, zero-friction transport request portal for rural students.
-2. An intelligent coordinator cockpit that models topological road connections, vehicle trip schedules, and seat capacities.
-3. A pure deterministic recovery solver that reassigns scarce vehicular seats during disruptions while **honestly reporting unmet demand** without fabricating false capacity.
+1. **Interactive GIS Mapping (Leaflet + OpenStreetMap):** Real-world geographical mapping of rural hamlets, polytechnics, causeways, and road corridors.
+2. **Fleet Telematics & Vehicle Tracking:** Real-time seat occupancy, driver info, and simulated GPS telemetry with ETA calculation.
+3. **Pure Deterministic Recovery Solver:** Fast, zero-hallucination capacity allocation that strictly adheres to physical seat limits and produces transparent explanations for every unassigned student.
+4. **Student Portal with Privacy Protection:** Safe request submission, personalized seat and driver details, and disruption advisories without exposing peers' PII.
+5. **Emergency Disruption Notification Center:** In-app emergency notifications and adapter stubs for SMS/email gateways.
+6. **What-If Disruption Simulator:** Isolated sandbox allowing coordinators to stress-test breakdowns, road closures, and board exam demand surges without altering operational data.
+7. **Village Fairness & Vulnerability Index:** Regional Gini equity scoring and prescriptive fleet distribution recommendations.
+8. **Enterprise RBAC & PostgreSQL/PostGIS Support:** Multi-role access control (`STUDENT`, `COORDINATOR`, `ADMINISTRATOR`), complete PostGIS database schema, and an Express REST API backend.
 
 ---
 
 ## 🚀 Live Public Deployment & Repository
 
-- **Public Web Application (Primary):** [https://prembt1206.github.io/Prompt-Avengers/](https://prembt1206.github.io/Prompt-Avengers/)
-- **Public Web Application (Mirror):** [https://prembt1206.github.io/routeless/](https://prembt1206.github.io/routeless/)
-- **Public GitHub Repository (Primary):** [https://github.com/prembt1206/Prompt-Avengers](https://github.com/prembt1206/Prompt-Avengers)
-- **Public GitHub Repository (Mirror):** [https://github.com/prembt1206/routeless](https://github.com/prembt1206/routeless)
+- **Public Web Application (Primary):** [https://prembt1206.github.io/routeless/](https://prembt1206.github.io/routeless/)
+- **Public GitHub Repository (Primary):** [https://github.com/prembt1206/routeless](https://github.com/prembt1206/routeless)
 
 ---
 
-## 📋 Assumptions & System Boundaries
+## 🗺️ Geographical Domain Model (Dakshina Kannada / Mangaluru Region)
 
-As specified in the challenge design parameters:
-1. **Single-User Demonstration:** The prototype is configured for single-evaluator exploration without complex multi-tenant concurrency.
-2. **Demo Role Toggle (Not Access Control):** The Coordinator View and Student View are switched via an instant demo toggle in the top header. This is a rapid demonstration feature, not role-based security (RBAC) or cryptographic authentication.
-3. **Synthetic Domain Data (Mangaluru Suburban / Coastal Karnataka Region):** All 5 rural hamlets (*Pavoor Riverine Fringe, Farangipete Junction, Kalladka Foothills, Ganjimutt Valley, Gurupura Riverbank*), 2 Mangaluru educational institutions (*St. Aloysius High School & PU College, Karnataka (Govt) Polytechnic — KPT*), 7 road segments, 3 vehicle trips, and 17 student requests are modeled for demonstration.
-4. **LocalStorage Storage Limitations & Privacy:**
-   - State persists within the evaluator's current browser origin via `localStorage`.
-   - Data is **not** synced to a centralized cloud database and is **not** shared across distinct browser sessions or devices.
-   - `localStorage` does not provide encrypted or secure authentication.
-   - **Never input real sensitive student personally identifiable information (PII).**
-5. **No Hallucinated Capacity:** When vehicle capacity is exhausted or routes are cut off, RouteLess produces truthful, transparent reasons for every unassigned student rather than inventing extra trips or violating physical seat counts.
+RouteLess models real-world geographical coordinates in Coastal Karnataka:
+
+| Entity | ID | Location / Landmark | Coordinates (Lat, Lng) | Connectivity Type |
+|---|---|---|---|---|
+| **Pavoor Riverine Fringe** | `vil-pavoor` | Pavoor Uliya / Netravati Backwaters | `12.8530° N, 74.9040° E` | Fair-Weather Gravel |
+| **Farangipete Junction** | `vil-farangipete` | NH 73 Transit Crossroads, Bantwal | `12.8680° N, 74.9602° E` | All-Weather Tar |
+| **Kalladka Foothills** | `vil-kalladka` | NH 75 Western Ghat Foothills | `12.8210° N, 75.0505° E` | Fair-Weather Gravel |
+| **Ganjimutt Valley** | `vil-ganjimutt` | Gurupura River Valley Basin | `12.9550° N, 74.9520° E` | All-Weather Tar |
+| **Gurupura Riverbank** | `vil-gurupura` | Phalguni (Gurupura) River Causeway | `12.9320° N, 74.9310° E` | Vulnerable River Crossing |
+| **St. Aloysius PU College** | `inst-aloysius` | Light House Hill, Mangaluru | `12.8718° N, 74.8436° E` | Higher Secondary School |
+| **Karnataka Polytechnic (KPT)** | `inst-kpt` | Kadri Hills, Mangaluru | `12.8872° N, 74.8624° E` | Polytechnic & ITI |
 
 ---
 
-## 🔄 Core Demonstration Flow (Step-by-Step Evaluator Script)
+## 🧩 Architectural Features
 
-Evaluators can verify the end-to-end resilience workflow following this exact sequence:
+### 1. Interactive Geographical Map (Leaflet + OpenStreetMap)
+- Real OpenStreetMap tile rendering with zoom and pan controls.
+- Color-coded vehicle routes (Bus 01: Cyan `#0284c7`, Van 02: Orange `#ea580c`, Cruiser 03: Purple `#9333ea`).
+- Blocked road corridors highlighted in bold red dashed styling with closure root cause.
+- Dynamic alternative route detour polylines (Emerald green dashed lines).
+- Interactive marker inspection popups for hamlets, institutions, and vehicles.
+- Toggle between **Geographical Leaflet Map** and **Topological Schematic SVG**.
 
+### 2. Fleet Telematics & Vehicle Tracking
+- Registration number, driver mobile, capacity, occupied seats, and live status (`Available`, `On Route`, `Delayed`, `Breakdown`, `Out of Service`).
+- Dynamic ETA calculated from remaining route distance and operational speed ($v \approx 38\text{ km/h}$).
+- Built-in **Simulated GPS Playback Mode** (1x, 2x, 4x speed) with clear telematics labeling.
+- CRUD controls: Add vehicle, Edit capacity/driver, Remove vehicle, Report breakdown.
+
+### 3. Professional Coordinator Cockpit
+- 7 Analytics KPI cards: Total Requests, Assigned, Unassigned, Active Fleet, Available Seats, Active Disruptions, and Recovery Rate %.
+- 9 Dedicated Sections:
+  - **Transport Overview:** Seat load gauges, village fulfillment rates, and academic priority triage.
+  - **Interactive GIS Map:** Real OSM map with live GPS vehicle positions.
+  - **Fleet Registry:** Full vehicle management table with CRUD modals.
+  - **Road Corridors:** Corridor status toggles and distance/travel time metrics.
+  - **Assignments & Demand:** Confirmed seat assignments and honest unmet rosters.
+  - **What-If Simulator:** Isolated sandbox for breakdown/flooding stress tests.
+  - **Fairness & Vulnerability Index:** Gini equity scoring and prescriptive recommendations.
+  - **Recovery Diff (P1):** Side-by-side impact delta and student rerouting audit.
+  - **Solver Trace Logs:** Deterministic step-by-step decision trail.
+
+### 4. Student Portal
+- Private student view: Students only see their own requests and assigned vehicle details.
+- Book morning transit with academic priority selection (`Examination travel`, `Practical examination travel`, `Regular school travel`).
+- Live vehicle assignment card: Confirmed seat number, driver phone, pickup time, and approaching vehicle ETA.
+- Disruption alert banners notify students if their scheduled corridor is blocked or bus disabled.
+
+### 5. Emergency Notification Center
+- Real-time in-app notification center with unread badge counter.
+- Automated alert triggers on road blocks, vehicle cancellations, and re-allocations.
+- Notification Adapter pattern with stubs for Twilio SMS and SendGrid Email.
+
+### 6. Enterprise RBAC & Audit Trails
+- 3 Distinct Roles: `STUDENT`, `COORDINATOR`, `ADMINISTRATOR`.
+- Permission checking: Students cannot modify fleet or view peers' requests.
+- Immutable Audit Trail: Every disruption reported, solver executed, or capacity edited is logged with actor, role, action code, and timestamp.
+
+---
+
+## 🗄️ Database Schema & PostGIS Instructions
+
+The complete PostgreSQL + PostGIS schema is located in `server/schema.sql`.
+
+### Setup PostgreSQL with PostGIS:
+```bash
+# 1. Connect to PostgreSQL
+psql -U postgres
+
+# 2. Create database
+CREATE DATABASE routeless;
+\c routeless
+
+# 3. Execute schema script
+\i server/schema.sql
 ```
-[1. Student Request] ──> [2. Coordinator Review] ──> [3. Baseline Allocation]
-                                                            │
-[6. Inspect Unmet & Diff] <── [5. Recovery Allocation] <── [4. Trigger Disruption]
+
+Tables created:
+- `villages` (Spatial Point geometries for hamlets)
+- `institutions` (Spatial Point geometries for schools)
+- `transport_connections` (Spatial LineString geometries for road corridors)
+- `vehicle_trips` & `trip_stops` (Fleet assets and schedules)
+- `users` (RBAC accounts: Student, Coordinator, Administrator)
+- `student_requests` (Transport demand)
+- `allocations`, `assignments`, & `unmet_demands` (Deterministic solver outputs)
+- `audit_logs` & `system_notifications` (Compliance and alert records)
+
+---
+
+## ⚙️ Environment Variables
+
+Copy `.env.example` to `.env`:
+
+```env
+PORT=3001
+VITE_API_URL=http://localhost:3001
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/routeless
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+VITE_TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_PHONE=+1234567890
 ```
 
-### Step 1: Submit Student Transport Request
-1. Click the **"Student View"** toggle in the top navigation bar.
-2. Inspect the 17 seeded student requests or submit a custom request using the form (e.g., student name "Deeksha Poojary" from *Pavoor Riverine Fringe* to *St. Aloysius High School & PU College* for *Karnataka SSLC Board Practical Exam*).
-3. The request is immediately registered into local state and scheduled for dispatch.
-
-### Step 2: Coordinator Views Trips & Available Capacity
-1. Toggle back to **"Coordinator View"**.
-2. Examine the 3 vehicle trips:
-   - **Bus 01 — KSRTC Rural Sarige Mini-Bus:** 6 seats, serves *Pavoor* & *Farangipete* → *St. Aloysius HSS, Light House Hill* (arrives 08:15).
-   - **Van 02 — Dakshina Kannada ZP Maxi-Cab:** 4 seats, serves *Kalladka* & *Farangipete* → *Karnataka Polytechnic (KPT), Kadri* (arrives 08:25).
-   - **Cruiser 03 — Kudla Community Cruiser:** 5 seats, serves *Gurupura*, *Ganjimutt*, & *Farangipete* → *St. Aloysius HSS* (arrives 08:20).
-3. Total available seats = 15. Total student demand = 17 requests.
-
-### Step 3: Run Baseline Allocation
-1. Click **"1. Run Baseline Allocation"** in the cockpit.
-2. Observe deterministic assignment:
-   - Exactly 15 students are assigned valid seats matching timing, origin stops, and destination schools.
-   - Exactly 2 students remain unassigned because 17 requests exceed the 15-seat physical limit.
-   - The **Unmet Student Demand** roster displays truthful explanations: `"Capacity exhausted (all feasible trips at maximum occupancy)"`.
-
-### Step 4: Simulate Disruption (Vehicle Breakdown or Blocked Causeway)
-Choose either manual toggles or the one-click preset bar:
-- **Option A (Vehicle Cancellation):** Click preset **"Scenario A: KSRTC Bus 01 Engine Breakdown"** (or toggle cancellation on Bus 01 card). KSRTC Bus 01 (6 seats) is marked out-of-service.
-- **Option B (Route Obstruction):** Click preset **"Scenario B: Gurupura Causeway Flash Flood"** (or click the Gurupura–Ganjimutt segment on the interactive SVG map). The low-lying causeway over the Phalguni river is marked impassable.
-
-### Step 5: Run Recovery Allocation
-1. Click **"2. Run Recovery Allocation"**.
-2. The pure TypeScript solver re-evaluates the network topology:
-   - Cancelled vehicles and blocked route legs are strictly disqualified.
-   - Surviving vehicles (*Cruiser 03* and *Van 02*) are loaded up to their capacity limit.
-   - Eligible students who have alternate paths are rerouted; students with no feasible alternative are identified.
-
-### Step 6: Review Valid New Assignments & Honest Unmet Explanations
-1. Open the **"Assignments & Unmet Demand"** tab:
-   - *Pavoor* students (whose only service was Bus 01) are flagged as **Unmet** with clear reason: `"The only scheduled transport serving Pavoor Riverine Fringe (Bus 01) has been CANCELLED. No active alternative vehicle exists for this sector."`
-   - *Farangipete* students heading to St. Aloysius are evaluated for *Cruiser 03*; seats are allocated by academic priority (Board Exam candidates first) until Cruiser 03 reaches its 5-seat limit.
-2. Open the **"Baseline vs Recovery Diff"** tab (P1) to inspect the side-by-side impact delta, displaced students, and rerouted students.
-3. Open the **"Solver Trace Logs"** tab (P1) for the step-by-step deterministic audit trail.
-4. Click **"Reset Demo"** at any time to return the fleet and network to the default seed state.
+*Note: If no database or external SMS credentials are provided, RouteLess runs 100% functionality using resilient browser persistence and the In-App Notification Center.*
 
 ---
 
-## 🧩 Domain Model & Constraints
-
-| Entity | Attributes | Physical Constraints Enforced |
-|---|---|---|
-| **Village** | ID, Name, Coordinates, Connectivity Type | Must be an explicitly scheduled stop on a trip to enable boarding. |
-| **Institution** | ID, Name, School Start Time (HH:MM), Type | Trip arrival time must be $\le$ school start time to be feasible. |
-| **Transport Corridor** | ID, From, To, Distance (km), Travel Time (min), Blocked Flag | Impassable roads invalidate all trip legs traversing them. |
-| **Vehicle Trip** | Vehicle Name, Capacity, Destination, Stops, Path Segments | 1 active trip per vehicle; fixed capacity; zero seat over-allocation. |
-| **Student Request** | Student Name, Origin, Destination, Deadline, Priority Category | Occupies exactly 1 seat from pickup stop to final destination. |
-| **Assignment** | Student, Trip, Pickup Time, Dropoff Time, Seat # | Deterministically generated; respects priority triage and deadlines. |
-| **Unmet Request** | Student, Origin, Destination, Primary Reason, Full Audit | Never hidden or fabricated; includes evaluation of all fleet trips. |
-
----
-
-## 🛠️ Technology Stack & Zero-Backend Architecture
-
-- **Framework:** React 19 + TypeScript + Vite 8
-- **Allocation Engine:** Pure TypeScript module (`src/services/allocationSolver.ts`) with **zero UI dependencies**
-- **Visualization:** Interactive SVG Network Schematic with live visual statuses
-- **State & Storage:** Local state with resilient `localStorage` browser persistence
-- **Icons:** Lucide React
-- **Testing:** Vitest automated test suite verifying determinism, capacities, cancellations, route closures, and timing
-- **Deployment:** Static single-page application deployed to GitHub Pages via automated GitHub Actions
-
----
-
-## 🧪 Automated Test Suite
-
-Run the unit tests locally:
+## 💻 Local Development & Commands
 
 ```bash
-# Run pure allocation solver test suite
+# 1. Install dependencies
+npm install
+
+# 2. Run automated test suite (17 tests)
+npm test
+
+# 3. Start Vite frontend development server
+npm run dev
+
+# 4. Start Express REST API backend server (optional)
+npm run server
+
+# 5. Build production bundle
+npm run build
+```
+
+---
+
+## 🧪 Automated Test Suite (17 Passing Tests)
+
+Run all unit and solver verification tests:
+
+```bash
 npm test
 ```
 
@@ -146,26 +187,18 @@ Test coverage includes:
 3. **Vehicle Cancellation:** Cancelled vehicles receive 0 assignments; stranded villages receive honest cancellation explanations.
 4. **Route Obstruction:** Blocked segments invalidate affected trip legs; downstream legs remain operational.
 5. **Dynamic Capacity Adjustments:** Live editing of vehicle capacity immediately alters allocation outputs.
-6. **Arrival Timing Incompatibility:** Trips arriving after student deadlines are disqualified with explicit timing reasons.
-
----
-
-## 💻 Local Development Setup
-
-```bash
-# 1. Clone repository
-git clone https://github.com/prembt1206/routeless.git
-cd routeless
-
-# 2. Install dependencies
-npm install
-
-# 3. Start development server
-npm run dev
-
-# 4. Build production static bundle
-npm run build
-```
+6. **Shortest Path Routing:** Dijkstra graph search finds optimal passable corridors.
+7. **Alternative Detour Evaluation:** Calculates distance delta and alternative corridors when roads are blocked.
+8. **ETA Calculation:** Accurately computes arrival times based on speed and remaining distance.
+9. **GPS Waypoint Interpolation:** Smooth mathematical interpolation along geographic coordinates.
+10. **Alternative Assembly Suggestions:** Proposes nearby walkable junctions when a village is severed.
+11. **RBAC Permission Boundaries:** Enforces student, coordinator, and administrator access limits.
+12. **Emergency Notifications:** Generates in-app alerts on road closures and vehicle breakdowns.
+13. **Immutable Audit Trail:** Verifies action logging with actors and timestamps.
+14. **Regional Fairness & Gini Index:** Verifies village-level fulfillment and equity scoring.
+15. **What-If Simulation Sandbox:** Guarantees simulations do not mutate baseline operational records.
+16. **Demand Surge Simulation:** Accurately evaluates exam day demand spikes.
+17. **Vehicle Breakdown Recovery:** Reassigns surviving capacity without creating imaginary seats.
 
 ---
 
