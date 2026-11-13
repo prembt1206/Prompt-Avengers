@@ -11,9 +11,10 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Support both standard naming conventions
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+// Support both standard naming conventions and sanitize trailing /rest/v1 or slashes
+const rawUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseUrl = rawUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '').trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
