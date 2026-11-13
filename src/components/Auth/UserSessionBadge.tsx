@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProfile } from '../../types';
-import { Shield, User, LogIn, LogOut, Database, CloudCheck, HardDrive } from 'lucide-react';
+import { Shield, User, LogIn, LogOut, Database, HardDrive, UserPlus } from 'lucide-react';
 
 interface UserSessionBadgeProps {
   currentUser: UserProfile | null;
@@ -8,6 +8,7 @@ interface UserSessionBadgeProps {
   onOpenAuthModal: () => void;
   onSignOut: () => void;
   onOpenConfigModal: () => void;
+  onNavigateSignup?: () => void;
 }
 
 export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
@@ -15,7 +16,8 @@ export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
   isConfigured,
   onOpenAuthModal,
   onSignOut,
-  onOpenConfigModal
+  onOpenConfigModal,
+  onNavigateSignup = onOpenAuthModal
 }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -43,9 +45,9 @@ export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
           type="button"
           onClick={onOpenConfigModal}
           style={{
-            background: 'rgba(217, 119, 6, 0.15)',
-            color: '#b45309',
-            border: '1px solid #fde68a',
+            background: 'rgba(255, 123, 89, 0.15)',
+            color: '#ff7b59',
+            border: '1px solid #ffd5cc',
             borderRadius: '9999px',
             display: 'inline-flex',
             alignItems: 'center',
@@ -62,7 +64,7 @@ export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
         </button>
       )}
 
-      {/* User Session Info or Sign In Action */}
+      {/* User Session Info or Sign Up / Sign In Actions */}
       {currentUser ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div
@@ -70,22 +72,22 @@ export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              background: '#f1f5f9',
-              border: '1px solid #cbd5e1',
+              background: '#f1f2f6',
+              border: '1px solid #d2d8e0',
               borderRadius: '6px',
               padding: '3px 8px',
               fontSize: '0.8rem'
             }}
           >
-            <User size={13} color="#475569" />
-            <span style={{ fontWeight: 600, color: '#1e293b' }}>
+            <User size={13} color="#0770e3" />
+            <span style={{ fontWeight: 700, color: '#111215' }}>
               {currentUser.fullName || currentUser.email}
             </span>
             <span
               className={`badge ${currentUser.role === 'coordinator' ? 'badge-primary' : 'badge-neutral'}`}
               style={{ fontSize: '0.65rem', padding: '1px 6px' }}
             >
-              {currentUser.role === 'coordinator' ? 'Coordinator (RLS Admin)' : 'Student'}
+              {currentUser.role === 'coordinator' ? 'Coordinator (RLS)' : 'Student'}
             </span>
           </div>
 
@@ -101,19 +103,34 @@ export const UserSessionBadge: React.FC<UserSessionBadgeProps> = ({
           </button>
         </div>
       ) : (
-        isConfigured && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <button
             type="button"
             className="btn btn-primary"
+            onClick={onNavigateSignup}
+            style={{
+              padding: '5px 12px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              gap: '5px',
+              background: '#0770e3',
+              borderColor: '#0770e3'
+            }}
+          >
+            <UserPlus size={13} />
+            <span>Sign Up</span>
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
             onClick={onOpenAuthModal}
-            style={{ padding: '4px 10px', fontSize: '0.8rem', gap: '5px' }}
+            style={{ padding: '5px 10px', fontSize: '0.8rem', gap: '4px' }}
           >
             <LogIn size={13} />
             <span>Sign In</span>
           </button>
-        )
+        </div>
       )}
     </div>
   );
 };
-

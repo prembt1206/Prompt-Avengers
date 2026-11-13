@@ -14,6 +14,7 @@ import { SkyscannerHero } from './components/Skyscanner/SkyscannerHero';
 import { SkyscannerCrisisBanner } from './components/Skyscanner/SkyscannerCrisisBanner';
 import { SkyscannerFaq } from './components/Skyscanner/SkyscannerFaq';
 import { SkyscannerFooter } from './components/Skyscanner/SkyscannerFooter';
+import { SignupPage } from './components/Auth/SignupPage';
 import {
   activateExamCrisisScenario,
   computeCrisisComparisonMetrics
@@ -32,7 +33,7 @@ import {
 import { Zap, Send, ShieldAlert, Cloud, CheckCircle } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'COORDINATOR' | 'STUDENT'>(() =>
+  const [currentView, setCurrentView] = useState<'COORDINATOR' | 'STUDENT' | 'SIGNUP'>(() =>
     StorageService.getUserView()
   );
 
@@ -157,13 +158,15 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handleViewChange = (view: 'COORDINATOR' | 'STUDENT') => {
+  const handleViewChange = (view: 'COORDINATOR' | 'STUDENT' | 'SIGNUP') => {
     // If signed in as a student in cloud mode, alert them of permission boundaries
     if (isSupabaseReady && currentUser && currentUser.role === 'student' && view === 'COORDINATOR') {
       showToast('⚠️ Note: You are logged in as a Student. Database RLS prevents student accounts from modifying fleet or road records.');
     }
     setCurrentView(view);
-    StorageService.saveUserView(view);
+    if (view !== 'SIGNUP') {
+      StorageService.saveUserView(view);
+    }
   };
 
   const handleRunBaseline = async () => {
@@ -538,17 +541,19 @@ export const App: React.FC = () => {
       />
 
       {/* Signature Skyscanner Hero with Segmented Search Bar & Quick Navigation */}
-      <SkyscannerHero
-        currentView={currentView}
-        onViewChange={handleViewChange}
-        villages={villages}
-        institutions={institutions}
-        onQuickSearchOrSubmit={(vId, iId, isExam) => {
-          handleViewChange('STUDENT');
-        }}
-        onActivateCrisis={handleActivateExamCrisis}
-        isCrisisActive={Boolean(crisisState?.isActive)}
-      />
+      {currentView !== 'SIGNUP' && (
+        <SkyscannerHero
+          currentView={currentView}
+          onViewChange={handleViewChange}
+          villages={villages}
+          institutions={institutions}
+          onQuickSearchOrSubmit={(vId, iId, isExam) => {
+            handleViewChange('STUDENT');
+          }}
+          onActivateCrisis={handleActivateExamCrisis}
+          isCrisisActive={Boolean(crisisState?.isActive)}
+        />
+      )}
 
       {/* Floating Contextual Primary Action Button */}
       {currentView === 'COORDINATOR' && crisisState?.isStale && (
@@ -607,63 +612,78 @@ export const App: React.FC = () => {
       )}
 
       <main className="main-content">
-        {/* Skyscanner Crisis Protocol Promotional Graphic Banner */}
-        <SkyscannerCrisisBanner
-          crisisState={crisisState}
-          onActivateCrisis={handleActivateExamCrisis}
-          onGenerateRecovery={handleGenerateCrisisRecovery}
-          onResetCrisis={handleResetExamCrisis}
-          onViewAudit={() => handleViewChange('COORDINATOR')}
-        />
-
-        {currentView === 'STUDENT' ? (
-          <div className="student-view-container">
-            <div className="view-header">
-              <h2 className="view-title">Student Transport Request Portal</h2>
-              <p className="view-subtitle">
-                Request a guaranteed seat from rural Mangalore taluq villages to St. Aloysius or KPT. Fictional demo — no personal data collected.
-              </p>
-            </div>
-
-            <div className="student-layout">
-              <StudentRequestForm
-                villages={villages}
-                institutions={institutions}
-                onSubmitRequest={handleSubmitStudentRequest}
-              />
-              <StudentRequestList
-                requests={requests}
-                latestAllocation={currentResult}
-              />
-            </div>
-          </div>
-        ) : (
-          <CoordinatorDashboard
+        {currentView === 'SIGNUP' ? (
+          <SignupPage
             villages={villages}
             institutions={institutions}
-            connections={connections}
-            trips={trips}
-            requests={requests}
-            currentResult={currentResult}
-            baselineResult={baselineResult}
-            recoveryResult={recoveryResult}
-            stateBResult={stateBResult}
-            crisisState={crisisState}
-            crisisMetrics={crisisMetrics}
-            onRunBaseline={handleRunBaseline}
-            onRunRecovery={handleRunRecovery}
-            onActivateExamCrisis={handleActivateExamCrisis}
-            onGenerateCrisisRecovery={handleGenerateCrisisRecovery}
-            onResetExamCrisis={handleResetExamCrisis}
-            onUpdateTripCapacity={handleUpdateTripCapacity}
-            onToggleTripCancellation={handleToggleTripCancellation}
-            onToggleConnectionBlocked={handleToggleConnectionBlocked}
-            onApplyScenario={handleApplyScenario}
+            onAuthSuccess={user => {
+              setCurrentUser(user);
+              showToast(`Welcome, ${user.fullName || user.email}! Account authenticated.`);
+              handleViewChange(user.role === 'coordinator' ? 'COORDINATOR' : 'STUDENT');
+            }}
+            onNavigateHome={() => handleViewChange('COORDINATOR')}
           />
-        )}
+        ) : (
+          <>
+            {/* Skyscanner Crisis Protocol Promotional Graphic Banner */}
+            <SkyscannerCrisisBanner
+              crisisState={crisisState}
+              onActivateCrisis={handleActivateExamCrisis}
+              onGenerateRecovery={handleGenerateCrisisRecovery}
+              onResetCrisis={handleResetExamCrisis}
+              onViewAudit={() => handleViewChange('COORDINATOR')}
+            />
 
-        {/* Skyscanner 2-Column Accordion FAQ Section */}
-        <SkyscannerFaq />
+            {currentView === 'STUDENT' ? (
+              <div className="student-view-container">
+                <div className="view-header">
+                  <h2 className="view-title">Student Transport Request Portal</h2>
+                  <p className="view-subtitle">
+                    Request a guaranteed seat from rural Mangalore taluq villages to St. Aloysius or KPT. Fictional demo — no personal data collected.
+                  </p>
+                </div>
+
+                <div className="student-layout">
+                  <StudentRequestForm
+                    villages={villages}
+                    institutions={institutions}
+                    onSubmitRequest={handleSubmitStudentRequest}
+                  />
+                  <StudentRequestList
+                    requests={requests}
+                    latestAllocation={currentResult}
+                  />
+                </div>
+              </div>
+            ) : (
+              <CoordinatorDashboard
+                villages={villages}
+                institutions={institutions}
+                connections={connections}
+                trips={trips}
+                requests={requests}
+                currentResult={currentResult}
+                baselineResult={baselineResult}
+                recoveryResult={recoveryResult}
+                stateBResult={stateBResult}
+                crisisState={crisisState}
+                crisisMetrics={crisisMetrics}
+                onRunBaseline={handleRunBaseline}
+                onRunRecovery={handleRunRecovery}
+                onActivateExamCrisis={handleActivateExamCrisis}
+                onGenerateCrisisRecovery={handleGenerateCrisisRecovery}
+                onResetExamCrisis={handleResetExamCrisis}
+                onUpdateTripCapacity={handleUpdateTripCapacity}
+                onToggleTripCancellation={handleToggleTripCancellation}
+                onToggleConnectionBlocked={handleToggleConnectionBlocked}
+                onApplyScenario={handleApplyScenario}
+              />
+            )}
+
+            {/* Skyscanner 2-Column Accordion FAQ Section */}
+            <SkyscannerFaq />
+          </>
+        )}
       </main>
 
       {/* Step-by-step evaluator walkthrough script modal */}

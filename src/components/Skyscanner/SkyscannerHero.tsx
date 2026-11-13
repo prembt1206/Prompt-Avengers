@@ -16,8 +16,8 @@ import {
 import { Village, Institution } from '../../types';
 
 interface SkyscannerHeroProps {
-  currentView: 'COORDINATOR' | 'STUDENT';
-  onViewChange: (view: 'COORDINATOR' | 'STUDENT') => void;
+  currentView: 'COORDINATOR' | 'STUDENT' | 'SIGNUP';
+  onViewChange: (view: 'COORDINATOR' | 'STUDENT' | 'SIGNUP') => void;
   villages: Village[];
   institutions: Institution[];
   onQuickSearchOrSubmit?: (originVillageId: string, destinationId: string, isExam: boolean) => void;
@@ -313,3 +313,4 @@ export const SkyscannerHero: React.FC<SkyscannerHeroProps> = ({
     </section>
   );
 };
+

@@ -108,3 +108,4 @@ export const SkyscannerCrisisBanner: React.FC<SkyscannerCrisisBannerProps> = ({
     </div>
   );
 };
+

@@ -71,3 +71,4 @@ export const SkyscannerFooter: React.FC = () => {
     </footer>
   );
 };
+

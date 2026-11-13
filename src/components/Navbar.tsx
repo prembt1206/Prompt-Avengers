@@ -4,8 +4,8 @@ import { UserSessionBadge } from './Auth/UserSessionBadge';
 import { UserProfile } from '../types';
 
 interface NavbarProps {
-  currentView: 'COORDINATOR' | 'STUDENT';
-  onViewChange: (view: 'COORDINATOR' | 'STUDENT') => void;
+  currentView: 'COORDINATOR' | 'STUDENT' | 'SIGNUP';
+  onViewChange: (view: 'COORDINATOR' | 'STUDENT' | 'SIGNUP') => void;
   onResetDemo: () => void;
   onOpenDemoScript: () => void;
   currentUser?: UserProfile | null;
@@ -28,7 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <header className="app-navbar">
-      <div className="nav-brand">
+      <div className="nav-brand" style={{ cursor: 'pointer' }} onClick={() => onViewChange('COORDINATOR')}>
         <div className="nav-logo-icon">
           <Bus size={22} />
         </div>
@@ -51,6 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           onOpenAuthModal={onOpenAuthModal}
           onSignOut={onSignOut}
           onOpenConfigModal={onOpenConfigModal}
+          onNavigateSignup={() => onViewChange('SIGNUP')}
         />
 
         {/* Demo Mode Toggle */}

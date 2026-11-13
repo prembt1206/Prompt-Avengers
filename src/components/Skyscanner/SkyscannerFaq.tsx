@@ -149,3 +149,4 @@ export const SkyscannerFaq: React.FC = () => {
     </section>
   );
 };
+
