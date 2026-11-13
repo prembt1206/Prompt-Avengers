@@ -3,10 +3,10 @@
 > **"When a bus stops, learning should not."**  
 > AI-Powered Rural Transportation Resilience & Dynamic Recovery Prototype
 
-[![Automated Tests](https://img.shields.io/badge/Tests-5%20Passing-emerald)](https://github.com/prembt1206/routeless)
+[![Automated Tests](https://img.shields.io/badge/Tests-5%20Passing-emerald)](https://github.com/prembt1206/Prompt-Avengers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/badge/Build-Production%20Ready-brightgreen)](https://github.com/prembt1206/routeless)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue)](https://prembt1206.github.io/routeless/)
+[![Build Status](https://img.shields.io/badge/Build-Production%20Ready-brightgreen)](https://github.com/prembt1206/Prompt-Avengers)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue)](https://prembt1206.github.io/Prompt-Avengers/)
 
 ---
 
@@ -31,8 +31,10 @@ In rural and tribal regions, physical distance and unpredictable infrastructure 
 
 ## 🚀 Live Public Deployment & Repository
 
-- **Public Web Application:** [https://prembt1206.github.io/routeless/](https://prembt1206.github.io/routeless/)
-- **Public GitHub Repository:** [https://github.com/prembt1206/routeless](https://github.com/prembt1206/routeless)
+- **Public Web Application (Primary):** [https://prembt1206.github.io/Prompt-Avengers/](https://prembt1206.github.io/Prompt-Avengers/)
+- **Public Web Application (Mirror):** [https://prembt1206.github.io/routeless/](https://prembt1206.github.io/routeless/)
+- **Public GitHub Repository (Primary):** [https://github.com/prembt1206/Prompt-Avengers](https://github.com/prembt1206/Prompt-Avengers)
+- **Public GitHub Repository (Mirror):** [https://github.com/prembt1206/routeless](https://github.com/prembt1206/routeless)
 
 ---
 
