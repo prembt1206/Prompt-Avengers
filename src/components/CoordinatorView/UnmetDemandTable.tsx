@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronUp, MapPin, School, ShieldAlert, X } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp, MapPin, School, ShieldAlert, Award, Clock } from 'lucide-react';
 import { UnmetRequest, UnmetReasonCode } from '../../types';
 
 interface UnmetDemandTableProps {
@@ -13,12 +13,20 @@ export const UnmetDemandTable: React.FC<UnmetDemandTableProps> = ({ unmetRequest
     setExpandedId(prev => (prev === id ? null : id));
   };
 
-  const getReasonBadge = (code: UnmetReasonCode) => {
-    switch (code) {
+  const getReasonBadge = (unmet: UnmetRequest) => {
+    if (unmet.hasLateAlternative) {
+      return (
+        <span className="badge badge-warning" style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' }}>
+          Late Alternative (Not On-Time)
+        </span>
+      );
+    }
+
+    switch (unmet.primaryReasonCode) {
       case 'TRIP_CANCELLED':
         return <span className="badge badge-danger">Vehicle Cancelled</span>;
       case 'ROUTE_BLOCKED':
-        return <span className="badge badge-danger">Route Blocked</span>;
+        return <span className="badge badge-danger">No Accessible Route</span>;
       case 'CAPACITY_EXCEEDED':
         return <span className="badge badge-warning">Capacity Exhausted</span>;
       case 'TIMING_INCOMPATIBLE':
@@ -36,14 +44,14 @@ export const UnmetDemandTable: React.FC<UnmetDemandTableProps> = ({ unmetRequest
         <div>
           <h3 className="card-title" style={{ color: '#991b1b' }}>
             <AlertTriangle size={18} className="text-danger" />
-            Unmet Student Demand & Deficit Roster ({unmetRequests.length})
+            Unmet Student Demand & True Deficit Roster ({unmetRequests.length})
           </h3>
           <p style={{ fontSize: '0.75rem', color: '#7f1d1d', marginTop: '2px' }}>
-            Honest accounting of unallocated requests. Zero artificial inflation of transport capacity.
+            Honest accounting of unallocated requests. Zero artificial inflation of transport capacity. Late alternatives are not counted as successful on-time assignments.
           </p>
         </div>
         <span className="badge badge-danger" style={{ fontWeight: 700 }}>
-          {unmetRequests.length} Students Without Transport
+          {unmetRequests.length} Students Without On-Time Transport
         </span>
       </div>
 
@@ -59,8 +67,8 @@ export const UnmetDemandTable: React.FC<UnmetDemandTableProps> = ({ unmetRequest
                 <tr>
                   <th>Student</th>
                   <th>Origin → Destination</th>
-                  <th>Priority Category</th>
-                  <th>Primary Reason</th>
+                  <th>Exam & Deadline</th>
+                  <th>Primary Classification</th>
                   <th>Honest Operational Explanation</th>
                   <th>Audit</th>
                 </tr>
@@ -71,11 +79,19 @@ export const UnmetDemandTable: React.FC<UnmetDemandTableProps> = ({ unmetRequest
 
                   return (
                     <React.Fragment key={unmet.requestId}>
-                      <tr style={{ background: '#fff5f5' }}>
+                      <tr style={{ background: unmet.hasLateAlternative ? '#fffdf7' : '#fff5f5' }}>
                         <td>
-                          <div style={{ fontWeight: 600, color: '#1e293b' }}>{unmet.studentName}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ fontWeight: 700, color: '#1e293b' }}>{unmet.studentName}</span>
+                            {unmet.isExamStudent && (
+                              <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>
+                                <Award size={10} /> EXAM
+                              </span>
+                            )}
+                          </div>
                           <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{unmet.gradeOrStream}</div>
                         </td>
+
                         <td>
                           <div style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <MapPin size={12} className="text-muted" />
@@ -85,25 +101,39 @@ export const UnmetDemandTable: React.FC<UnmetDemandTableProps> = ({ unmetRequest
                             <School size={12} className="text-muted" />
                             <span>{unmet.destinationInstitutionName}</span>
                           </div>
-                          <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Must arrive by {unmet.requiredArrivalTime}</div>
                         </td>
+
                         <td>
-                          {unmet.priorityCategory === 'CRITICAL_EXAM' && (
-                            <span className="badge badge-danger">Exam Priority</span>
-                          )}
-                          {unmet.priorityCategory === 'LAB_PRACTICAL' && (
-                            <span className="badge badge-warning">Lab Mandatory</span>
-                          )}
-                          {unmet.priorityCategory === 'REGULAR_ATTENDANCE' && (
-                            <span className="badge badge-neutral">Regular</span>
+                          {unmet.isExamStudent ? (
+                            <div>
+                              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#b45309' }}>
+                                Exam: {unmet.examStartTime}
+                              </div>
+                              <div style={{ fontSize: '0.7rem', color: '#475569' }}>
+                                Deadline: {unmet.requiredArrivalTime}
+                              </div>
+                            </div>
+                          ) : (
+                            <span style={{ fontSize: '0.75rem', color: '#475569' }}>
+                              Due by: {unmet.requiredArrivalTime}
+                            </span>
                           )}
                         </td>
-                        <td>{getReasonBadge(unmet.primaryReasonCode)}</td>
+
+                        <td>{getReasonBadge(unmet)}</td>
+
                         <td style={{ maxWidth: '340px' }}>
-                          <div style={{ fontSize: '0.825rem', color: '#7f1d1d', lineHeight: 1.35, fontWeight: 500 }}>
+                          <div style={{ fontSize: '0.825rem', color: unmet.hasLateAlternative ? '#92400e' : '#7f1d1d', lineHeight: 1.35, fontWeight: 500 }}>
                             {unmet.honestExplanation}
                           </div>
+
+                          {unmet.hasLateAlternative && unmet.lateAlternativeDetails && (
+                            <div style={{ marginTop: '4px', fontSize: '0.725rem', color: '#78350f', background: '#fef3c7', padding: '4px 8px', borderRadius: '4px' }}>
+                              <strong>Late Option:</strong> {unmet.lateAlternativeDetails.tripName.split('—')[0]} reaches at {unmet.lateAlternativeDetails.estimatedArrival} ({unmet.lateAlternativeDetails.minutesLate}m late). <em>Cannot count as on-time arrival for examination.</em>
+                            </div>
+                          )}
                         </td>
+
                         <td>
                           <button
                             type="button"
@@ -130,7 +160,7 @@ export const UnmetDemandTable: React.FC<UnmetDemandTableProps> = ({ unmetRequest
                           <td colSpan={6} style={{ background: '#f8fafc', padding: '16px 20px', borderBottom: '2px solid #e2e8f0' }}>
                             <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                               <h5 style={{ fontSize: '0.825rem', fontWeight: 700, color: '#334155', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <ShieldAlert size={14} className="text-primary" />
+                                <ShieldAlert size={14} className="text-teal" />
                                 Solver Vehicle Trip Evaluation Audit for {unmet.studentName}:
                               </h5>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -172,4 +202,3 @@ export const UnmetDemandTable: React.FC<UnmetDemandTableProps> = ({ unmetRequest
     </div>
   );
 };
-

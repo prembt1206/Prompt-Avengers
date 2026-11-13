@@ -12,7 +12,8 @@ import {
   StudentRequest,
   VehicleTrip,
   TransportConnection,
-  AllocationResult
+  AllocationResult,
+  ExamCrisisState
 } from '../types';
 import {
   SEEDED_STUDENT_REQUESTS,
@@ -21,12 +22,14 @@ import {
 } from '../models/seedData';
 
 const KEYS = {
-  REQUESTS: 'routeless_mangaluru_requests_v2',
-  TRIPS: 'routeless_mangaluru_trips_v2',
-  CONNECTIONS: 'routeless_mangaluru_connections_v2',
-  BASELINE: 'routeless_mangaluru_baseline_v2',
-  RECOVERY: 'routeless_mangaluru_recovery_v2',
-  USER_VIEW: 'routeless_mangaluru_user_view_v2'
+  REQUESTS: 'routeless_mangaluru_requests_v3',
+  TRIPS: 'routeless_mangaluru_trips_v3',
+  CONNECTIONS: 'routeless_mangaluru_connections_v3',
+  BASELINE: 'routeless_mangaluru_baseline_v3',
+  RECOVERY: 'routeless_mangaluru_recovery_v3',
+  STATE_B: 'routeless_mangaluru_state_b_v3',
+  CRISIS_STATE: 'routeless_mangaluru_crisis_state_v3',
+  USER_VIEW: 'routeless_mangaluru_user_view_v3'
 };
 
 export const StorageService = {
@@ -37,7 +40,7 @@ export const StorageService = {
     } catch (e) {
       console.warn('Could not read requests from localStorage', e);
     }
-    return [...SEEDED_STUDENT_REQUESTS];
+    return JSON.parse(JSON.stringify(SEEDED_STUDENT_REQUESTS));
   },
 
   saveRequests(requests: StudentRequest[]): void {
@@ -128,6 +131,50 @@ export const StorageService = {
     }
   },
 
+  getStateBResult(): AllocationResult | null {
+    try {
+      const data = localStorage.getItem(KEYS.STATE_B);
+      if (data) return JSON.parse(data);
+    } catch (e) {
+      console.warn('Could not read State B result from localStorage', e);
+    }
+    return null;
+  },
+
+  saveStateBResult(result: AllocationResult | null): void {
+    try {
+      if (result) {
+        localStorage.setItem(KEYS.STATE_B, JSON.stringify(result));
+      } else {
+        localStorage.removeItem(KEYS.STATE_B);
+      }
+    } catch (e) {
+      console.warn('Could not save State B result to localStorage', e);
+    }
+  },
+
+  getCrisisState(): ExamCrisisState | null {
+    try {
+      const data = localStorage.getItem(KEYS.CRISIS_STATE);
+      if (data) return JSON.parse(data);
+    } catch (e) {
+      console.warn('Could not read crisis state from localStorage', e);
+    }
+    return null;
+  },
+
+  saveCrisisState(state: ExamCrisisState | null): void {
+    try {
+      if (state) {
+        localStorage.setItem(KEYS.CRISIS_STATE, JSON.stringify(state));
+      } else {
+        localStorage.removeItem(KEYS.CRISIS_STATE);
+      }
+    } catch (e) {
+      console.warn('Could not save crisis state to localStorage', e);
+    }
+  },
+
   getUserView(): 'COORDINATOR' | 'STUDENT' {
     try {
       const data = localStorage.getItem(KEYS.USER_VIEW);
@@ -157,6 +204,8 @@ export const StorageService = {
       localStorage.removeItem(KEYS.CONNECTIONS);
       localStorage.removeItem(KEYS.BASELINE);
       localStorage.removeItem(KEYS.RECOVERY);
+      localStorage.removeItem(KEYS.STATE_B);
+      localStorage.removeItem(KEYS.CRISIS_STATE);
     } catch (e) {
       console.warn('Could not clear localStorage', e);
     }
@@ -168,4 +217,3 @@ export const StorageService = {
     };
   }
 };
-

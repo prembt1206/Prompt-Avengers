@@ -7,13 +7,20 @@ import { CoordinatorDashboard } from './components/CoordinatorView/CoordinatorDa
 import { DemoScriptModal } from './components/CoordinatorView/DemoScriptModal';
 import { StorageService } from './services/storageService';
 import { runAllocationSolver } from './services/allocationSolver';
+import {
+  activateExamCrisisScenario,
+  computeCrisisComparisonMetrics
+} from './services/crisisScenario';
 import { SEEDED_VILLAGES, SEEDED_INSTITUTIONS } from './models/seedData';
 import {
   StudentRequest,
   VehicleTrip,
   TransportConnection,
-  AllocationResult
+  AllocationResult,
+  ExamCrisisState,
+  CrisisComparisonMetrics
 } from './types';
+import { Zap, Send } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'COORDINATOR' | 'STUDENT'>(() =>
@@ -39,6 +46,13 @@ export const App: React.FC = () => {
   const [recoveryResult, setRecoveryResult] = useState<AllocationResult | null>(() =>
     StorageService.getRecoveryResult()
   );
+  const [stateBResult, setStateBResult] = useState<AllocationResult | null>(() =>
+    StorageService.getStateBResult()
+  );
+
+  const [crisisState, setCrisisState] = useState<ExamCrisisState | null>(() =>
+    StorageService.getCrisisState()
+  );
 
   const [currentResult, setCurrentResult] = useState<AllocationResult | null>(null);
   const [isDemoScriptOpen, setIsDemoScriptOpen] = useState(false);
@@ -48,7 +62,7 @@ export const App: React.FC = () => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 4000);
+    }, 4500);
   };
 
   // Run initial baseline allocation on first load if none exists
@@ -59,8 +73,11 @@ export const App: React.FC = () => {
       StorageService.saveBaselineResult(initialBaseline);
       setCurrentResult(initialBaseline);
     } else {
-      // Pick recovery result if it exists, otherwise baseline
-      setCurrentResult(recoveryResult || baselineResult);
+      if (crisisState?.isActive) {
+        setCurrentResult(recoveryResult || stateBResult || baselineResult);
+      } else {
+        setCurrentResult(recoveryResult || baselineResult);
+      }
     }
   }, []);
 
@@ -85,6 +102,85 @@ export const App: React.FC = () => {
     showToast(`✓ Recovery Allocation completed: ${res.assignedCount} assigned, ${res.unmetCount} unmet.`);
   };
 
+  // Official Exam Day Crisis Activation
+  const handleActivateExamCrisis = () => {
+    const {
+      updatedRequests,
+      updatedTrips,
+      updatedConnections,
+      crisisState: newCrisisState,
+      stateBResult: newStateB
+    } = activateExamCrisisScenario(
+      requests,
+      trips,
+      connections,
+      baselineResult,
+      crisisState?.preCrisisSnapshot
+    );
+
+    setRequests(updatedRequests);
+    setTrips(updatedTrips);
+    setConnections(updatedConnections);
+    setCrisisState(newCrisisState);
+    setStateBResult(newStateB);
+    setCurrentResult(newStateB); // Enters State B: allocations stale, recovery pending
+
+    StorageService.saveRequests(updatedRequests);
+    StorageService.saveTrips(updatedTrips);
+    StorageService.saveConnections(updatedConnections);
+    StorageService.saveCrisisState(newCrisisState);
+    StorageService.saveStateBResult(newStateB);
+    StorageService.saveRecoveryResult(null);
+
+    showToast(
+      '🚨 EXAM DAY CRISIS ACTIVATED: 2 Govt buses disabled, Ganjimutt road flooded, +40% demand surge added. Click "Generate Recovery Plan".'
+    );
+  };
+
+  // Official Crisis Recovery Generation
+  const handleGenerateCrisisRecovery = () => {
+    const res = runAllocationSolver(requests, trips, connections, 'RECOVERY');
+    setRecoveryResult(res);
+    StorageService.saveRecoveryResult(res);
+
+    if (crisisState) {
+      const updatedCrisisState = { ...crisisState, isStale: false };
+      setCrisisState(updatedCrisisState);
+      StorageService.saveCrisisState(updatedCrisisState);
+    }
+
+    setCurrentResult(res);
+    showToast(
+      `✓ Emergency Recovery Plan Generated: ${res.assignedCount} students assigned on time (${res.examAssignedOnTimeCount} exam candidates prioritized).`
+    );
+  };
+
+  // Reset Crisis to Normal Baseline
+  const handleResetExamCrisis = () => {
+    if (crisisState?.preCrisisSnapshot) {
+      const snap = crisisState.preCrisisSnapshot;
+      setRequests(snap.requests);
+      setTrips(snap.trips);
+      setConnections(snap.connections);
+      setBaselineResult(snap.baselineResult);
+      setRecoveryResult(null);
+      setStateBResult(null);
+      setCrisisState(null);
+      setCurrentResult(snap.baselineResult);
+
+      StorageService.saveRequests(snap.requests);
+      StorageService.saveTrips(snap.trips);
+      StorageService.saveConnections(snap.connections);
+      StorageService.saveBaselineResult(snap.baselineResult);
+      StorageService.saveRecoveryResult(null);
+      StorageService.saveStateBResult(null);
+      StorageService.saveCrisisState(null);
+    } else {
+      handleResetDemo();
+    }
+    showToast('✓ Restored to Normal Baseline scenario (all buses operational, corridors passable).');
+  };
+
   const handleUpdateTripCapacity = (tripId: string, newCapacity: number) => {
     const updated = trips.map(t =>
       t.id === tripId ? { ...t, capacity: newCapacity } : t
@@ -92,7 +188,6 @@ export const App: React.FC = () => {
     setTrips(updated);
     StorageService.saveTrips(updated);
 
-    // Auto-update current allocation dynamically
     const mode = currentResult?.mode || 'BASELINE';
     const res = runAllocationSolver(requests, updated, connections, mode);
     if (mode === 'BASELINE') {
@@ -133,7 +228,7 @@ export const App: React.FC = () => {
         ? {
             ...c,
             isBlocked: !c.isBlocked,
-            blockedReason: !c.isBlocked ? (blockedReason || 'Impassable causeway') : undefined
+            blockedReason: !c.isBlocked ? (blockedReason || 'Flooded causeway') : undefined
           }
         : c
     );
@@ -165,7 +260,6 @@ export const App: React.FC = () => {
     setRequests(updated);
     StorageService.saveRequests(updated);
 
-    // Re-run current allocation with new request
     const mode = currentResult?.mode || 'BASELINE';
     const res = runAllocationSolver(updated, trips, connections, mode);
     if (mode === 'BASELINE') {
@@ -176,7 +270,7 @@ export const App: React.FC = () => {
       StorageService.saveRecoveryResult(res);
     }
     setCurrentResult(res);
-    showToast(`New request submitted for ${newRequest.studentName}!`);
+    showToast(`New request registered for ${newRequest.studentName}!`);
   };
 
   const handleResetDemo = () => {
@@ -186,14 +280,22 @@ export const App: React.FC = () => {
     setTrips(defTrips);
     setConnections(defConns);
     setRecoveryResult(null);
+    setStateBResult(null);
+    setCrisisState(null);
 
     const initialBaseline = runAllocationSolver(defReqs, defTrips, defConns, 'BASELINE');
     setBaselineResult(initialBaseline);
     StorageService.saveBaselineResult(initialBaseline);
     setCurrentResult(initialBaseline);
 
-    showToast('✓ Demo reset to initial seeded state (17 requests, 3 trips, 0 road blocks).');
+    showToast('✓ Demo reset to initial seeded state (20 requests, 4 trips, 0 road blocks).');
   };
+
+  // Compute crisis metrics if State B and Recovery Result are present
+  const crisisMetrics: CrisisComparisonMetrics | null =
+    stateBResult && recoveryResult
+      ? computeCrisisComparisonMetrics(stateBResult, recoveryResult, trips)
+      : null;
 
   return (
     <div className="app-container">
@@ -208,13 +310,76 @@ export const App: React.FC = () => {
         onOpenDemoScript={() => setIsDemoScriptOpen(true)}
       />
 
+      {/* Floating Contextual Primary Action Button */}
+      {currentView === 'COORDINATOR' && crisisState?.isStale && (
+        <button
+          type="button"
+          className="floating-action-btn pulse-glow"
+          onClick={handleGenerateCrisisRecovery}
+          aria-label="Generate Recovery Plan for active crisis"
+          style={{
+            position: 'fixed',
+            bottom: '28px',
+            right: '28px',
+            background: '#0d9488',
+            color: '#ffffff',
+            padding: '12px 20px',
+            borderRadius: '50px',
+            boxShadow: '0 8px 24px rgba(13, 148, 136, 0.45)',
+            border: '2px solid #5eead4',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontWeight: 800,
+            fontSize: '0.9rem',
+            zIndex: 900,
+            cursor: 'pointer'
+          }}
+        >
+          <Zap size={18} />
+          <span>Generate Recovery Plan</span>
+        </button>
+      )}
+
+      {currentView === 'STUDENT' && (
+        <button
+          type="button"
+          className="floating-action-btn"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          aria-label="Jump to transport request form"
+          style={{
+            position: 'fixed',
+            bottom: '28px',
+            right: '28px',
+            background: '#042f2e',
+            color: '#5eead4',
+            padding: '10px 18px',
+            borderRadius: '50px',
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid #0f766e',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            zIndex: 900,
+            cursor: 'pointer'
+          }}
+        >
+          <Send size={15} />
+          <span>Request Seat</span>
+        </button>
+      )}
+
       {/* Floating feedback toast */}
       {toastMessage && (
         <div
           style={{
             position: 'fixed',
-            bottom: '24px',
-            right: '24px',
+            bottom: '28px',
+            left: '28px',
             background: '#0f172a',
             color: '#f8fafc',
             padding: '12px 18px',
@@ -222,7 +387,7 @@ export const App: React.FC = () => {
             boxShadow: 'var(--shadow-lg)',
             zIndex: 9999,
             fontSize: '0.85rem',
-            fontWeight: 500,
+            fontWeight: 600,
             border: '1px solid #334155',
             display: 'flex',
             alignItems: 'center',
@@ -245,8 +410,14 @@ export const App: React.FC = () => {
             currentResult={currentResult}
             baselineResult={baselineResult}
             recoveryResult={recoveryResult}
+            stateBResult={stateBResult}
+            crisisState={crisisState}
+            crisisMetrics={crisisMetrics}
             onRunBaseline={handleRunBaseline}
             onRunRecovery={handleRunRecovery}
+            onActivateExamCrisis={handleActivateExamCrisis}
+            onGenerateCrisisRecovery={handleGenerateCrisisRecovery}
+            onResetExamCrisis={handleResetExamCrisis}
             onUpdateTripCapacity={handleUpdateTripCapacity}
             onToggleTripCancellation={handleToggleTripCancellation}
             onToggleConnectionBlocked={handleToggleConnectionBlocked}
@@ -267,18 +438,15 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Walkthrough modal */}
+      {/* Walkthrough guide modal */}
       <DemoScriptModal
         isOpen={isDemoScriptOpen}
         onClose={() => setIsDemoScriptOpen(false)}
         onSwitchToStudentView={() => handleViewChange('STUDENT')}
         onSwitchToCoordinatorView={() => handleViewChange('COORDINATOR')}
         onRunBaseline={handleRunBaseline}
-        onTriggerDisruption={() => {
-          handleToggleTripCancellation('trip-01', 'Radiator crack & engine overheat during morning depot check');
-          handleRunRecovery();
-        }}
-        onRunRecovery={handleRunRecovery}
+        onTriggerDisruption={handleActivateExamCrisis}
+        onRunRecovery={handleGenerateCrisisRecovery}
         onReset={handleResetDemo}
       />
     </div>

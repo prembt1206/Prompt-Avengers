@@ -4,9 +4,9 @@ import {
   Bus,
   Route,
   CheckCircle2,
-  AlertTriangle,
-  ArrowLeftRight,
-  Terminal
+  TrendingUp,
+  Terminal,
+  Zap
 } from 'lucide-react';
 import {
   Village,
@@ -14,8 +14,12 @@ import {
   TransportConnection,
   VehicleTrip,
   StudentRequest,
-  AllocationResult
+  AllocationResult,
+  ExamCrisisState,
+  CrisisComparisonMetrics
 } from '../../types';
+import { ExamCrisisControl } from './ExamCrisisControl';
+import { CrisisComparisonPanel } from './CrisisComparisonPanel';
 import { AllocationSummary } from './AllocationSummary';
 import { DisruptionPresets } from './DisruptionPresets';
 import { NetworkMapSvg } from './NetworkMapSvg';
@@ -23,7 +27,6 @@ import { VehicleTripList } from './VehicleTripList';
 import { RoadConnectionsList } from './RoadConnectionsList';
 import { AssignmentTable } from './AssignmentTable';
 import { UnmetDemandTable } from './UnmetDemandTable';
-import { ComparisonView } from './ComparisonView';
 import { SolverLogViewer } from './SolverLogViewer';
 
 interface CoordinatorDashboardProps {
@@ -35,8 +38,14 @@ interface CoordinatorDashboardProps {
   currentResult: AllocationResult | null;
   baselineResult: AllocationResult | null;
   recoveryResult: AllocationResult | null;
+  stateBResult: AllocationResult | null;
+  crisisState: ExamCrisisState | null;
+  crisisMetrics: CrisisComparisonMetrics | null;
   onRunBaseline: () => void;
   onRunRecovery: () => void;
+  onActivateExamCrisis: () => void;
+  onGenerateCrisisRecovery: () => void;
+  onResetExamCrisis: () => void;
   onUpdateTripCapacity: (tripId: string, newCapacity: number) => void;
   onToggleTripCancellation: (tripId: string, cancelReason?: string) => void;
   onToggleConnectionBlocked: (connectionId: string, blockedReason?: string) => void;
@@ -52,25 +61,44 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
   currentResult,
   baselineResult,
   recoveryResult,
+  stateBResult,
+  crisisState,
+  crisisMetrics,
   onRunBaseline,
   onRunRecovery,
+  onActivateExamCrisis,
+  onGenerateCrisisRecovery,
+  onResetExamCrisis,
   onUpdateTripCapacity,
   onToggleTripCancellation,
   onToggleConnectionBlocked,
   onApplyScenario
 }) => {
-  const [activeTab, setActiveTab] = useState<'MAP' | 'FLEET' | 'ROADS' | 'ALLOCATIONS' | 'DIFF' | 'LOGS'>('ALLOCATIONS');
+  const [activeTab, setActiveTab] = useState<'ALLOCATIONS' | 'CRISIS_AUDIT' | 'MAP' | 'FLEET' | 'ROADS' | 'LOGS'>('ALLOCATIONS');
+
+  const isCrisisActive = Boolean(crisisState?.isActive);
 
   return (
     <div>
-      {/* Disruption Presets Bar */}
-      <DisruptionPresets
-        trips={trips}
-        connections={connections}
-        onApplyScenario={onApplyScenario}
+      {/* 1. Official Exam Day Crisis Simulator Control Strip */}
+      <ExamCrisisControl
+        crisisState={crisisState}
+        comparisonMetrics={crisisMetrics}
+        onActivateCrisis={onActivateExamCrisis}
+        onGenerateRecoveryPlan={onGenerateCrisisRecovery}
+        onResetToNormal={onResetExamCrisis}
       />
 
-      {/* Allocation Summary & Run Controls */}
+      {/* 2. Disruption Quick Presets */}
+      {!isCrisisActive && (
+        <DisruptionPresets
+          trips={trips}
+          connections={connections}
+          onApplyScenario={onApplyScenario}
+        />
+      )}
+
+      {/* 3. Allocation Summary & Engine Run Controls */}
       <AllocationSummary
         currentResult={currentResult}
         baselineResult={baselineResult}
@@ -78,10 +106,10 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
         trips={trips}
         connections={connections}
         onRunBaseline={onRunBaseline}
-        onRunRecovery={onRunRecovery}
+        onRunRecovery={isCrisisActive ? onGenerateCrisisRecovery : onRunRecovery}
       />
 
-      {/* Tab Navigation */}
+      {/* 4. Tab Navigation */}
       <div className="tabs-nav">
         <button
           type="button"
@@ -89,8 +117,22 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('ALLOCATIONS')}
         >
           <CheckCircle2 size={16} />
-          <span>Assignments & Unmet Demand ({currentResult ? currentResult.assignedCount + '/' + currentResult.totalRequests : requests.length})</span>
+          <span>
+            Assignments & Unmet Demand ({currentResult ? `${currentResult.assignedCount}/${currentResult.totalRequests}` : requests.length})
+          </span>
         </button>
+
+        {isCrisisActive && (
+          <button
+            type="button"
+            className={`tab-btn ${activeTab === 'CRISIS_AUDIT' ? 'active' : ''}`}
+            onClick={() => setActiveTab('CRISIS_AUDIT')}
+            style={{ color: activeTab === 'CRISIS_AUDIT' ? '#d97706' : '#92400e', fontWeight: 700 }}
+          >
+            <TrendingUp size={16} />
+            <span>Crisis Impact & 3-State Audit</span>
+          </button>
+        )}
 
         <button
           type="button"
@@ -98,7 +140,7 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('MAP')}
         >
           <MapPin size={16} />
-          <span>Interactive Network Topology</span>
+          <span>Network Topology & Alternative Routes</span>
         </button>
 
         <button
@@ -107,7 +149,7 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('FLEET')}
         >
           <Bus size={16} />
-          <span>Fleet & Capacity Controls ({trips.length})</span>
+          <span>Fleet Controls ({trips.filter(t => !t.isCancelled).length} Active / {trips.filter(t => t.isCancelled).length} Disabled)</span>
         </button>
 
         <button
@@ -116,16 +158,7 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('ROADS')}
         >
           <Route size={16} />
-          <span>Road Corridors ({connections.filter(c => c.isBlocked).length} Blocked)</span>
-        </button>
-
-        <button
-          type="button"
-          className={`tab-btn ${activeTab === 'DIFF' ? 'active' : ''}`}
-          onClick={() => setActiveTab('DIFF')}
-        >
-          <ArrowLeftRight size={16} />
-          <span>Baseline vs Recovery Diff (P1)</span>
+          <span>Road Corridors ({connections.filter(c => c.isBlocked).length} Flooded)</span>
         </button>
 
         <button
@@ -134,11 +167,42 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           onClick={() => setActiveTab('LOGS')}
         >
           <Terminal size={16} />
-          <span>Solver Trace Logs (P1)</span>
+          <span>Solver Trace Logs</span>
         </button>
       </div>
 
-      {/* Tab Contents */}
+      {/* 5. Tab Contents */}
+      {activeTab === 'ALLOCATIONS' && (
+        <div>
+          {/* Stale result notice if crisis active and not yet recovered */}
+          {crisisState?.isStale && (
+            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>
+                ⚠️ <strong>Crisis Triggered — Allocations Stale:</strong> The network has changed. Click <strong>"Generate Recovery Plan"</strong> above to compute the emergency on-time allocation.
+              </span>
+              <button type="button" className="btn btn-warning btn-sm" onClick={onGenerateCrisisRecovery}>
+                <Zap size={14} /> Generate Recovery Plan
+              </button>
+            </div>
+          )}
+
+          {/* Assigned Students */}
+          <AssignmentTable assignments={currentResult?.assignments || []} />
+
+          {/* Unmet Demand with Honest Explanations */}
+          <UnmetDemandTable unmetRequests={currentResult?.unmetRequests || []} />
+        </div>
+      )}
+
+      {activeTab === 'CRISIS_AUDIT' && (
+        <CrisisComparisonPanel
+          baselineResult={baselineResult}
+          stateBResult={stateBResult}
+          stateCResult={recoveryResult}
+          metrics={crisisMetrics}
+        />
+      )}
+
       {activeTab === 'MAP' && (
         <NetworkMapSvg
           villages={villages}
@@ -148,6 +212,7 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
           requests={requests}
           onToggleConnection={onToggleConnectionBlocked}
           onToggleTrip={onToggleTripCancellation}
+          isCrisisActive={isCrisisActive}
         />
       )}
 
@@ -168,28 +233,9 @@ export const CoordinatorDashboard: React.FC<CoordinatorDashboardProps> = ({
         />
       )}
 
-      {activeTab === 'ALLOCATIONS' && (
-        <div>
-          {/* Assigned Students */}
-          <AssignmentTable assignments={currentResult?.assignments || []} />
-
-          {/* Unmet Demand with Honest Explanations */}
-          <UnmetDemandTable unmetRequests={currentResult?.unmetRequests || []} />
-        </div>
-      )}
-
-      {activeTab === 'DIFF' && (
-        <ComparisonView
-          baselineResult={baselineResult}
-          recoveryResult={recoveryResult}
-          onRunRecovery={onRunRecovery}
-        />
-      )}
-
       {activeTab === 'LOGS' && (
         <SolverLogViewer logs={currentResult?.solverLogs || []} />
       )}
     </div>
   );
 };
-

@@ -4,7 +4,9 @@
  * Pure TypeScript module with ZERO UI dependencies.
  * Deterministic capacity-aware matching and recovery re-allocation.
  * Enforces all physical constraints: capacity, cancellations, blocked links, arrival deadlines.
- * Produces honest, detailed audit logs and explanations for every unmet request.
+ * Integrates Dijkstra shortest-path route search to discover alternative detour paths.
+ * Prioritizes exam students with imminent deadlines.
+ * Distinguishes on-time assignments, unmet requests, and late alternatives.
  */
 
 import {
@@ -20,36 +22,7 @@ import {
   PriorityCategory,
   UnmetReasonCode
 } from '../types';
-
-interface LegSegmentMapping {
-  fromStopId: string;
-  toStopOrDestId: string;
-  connectionId: string;
-}
-
-// Maps each trip's consecutive stops & final destination to their corresponding connection segments
-const TRIP_LEG_MAPPINGS: Record<string, LegSegmentMapping[]> = {
-  'trip-01': [
-    { fromStopId: 'vil-pavoor', toStopOrDestId: 'vil-farangipete', connectionId: 'seg-pav-far' },
-    { fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-aloysius', connectionId: 'seg-far-aloysius' }
-  ],
-  'trip-02': [
-    { fromStopId: 'vil-kalladka', toStopOrDestId: 'vil-farangipete', connectionId: 'seg-kal-far' },
-    { fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-kpt', connectionId: 'seg-far-kpt' }
-  ],
-  'trip-03': [
-    { fromStopId: 'vil-gurupura', toStopOrDestId: 'vil-ganjimutt', connectionId: 'seg-guru-ganji' },
-    { fromStopId: 'vil-ganjimutt', toStopOrDestId: 'vil-farangipete', connectionId: 'seg-ganji-far' },
-    { fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-aloysius', connectionId: 'seg-far-aloysius' }
-  ]
-};
-
-// Numerical priority rank (lower is higher priority)
-const PRIORITY_WEIGHTS: Record<PriorityCategory, number> = {
-  CRITICAL_EXAM: 1,
-  LAB_PRACTICAL: 2,
-  REGULAR_ATTENDANCE: 3
-};
+import { TransportNetworkGraph } from './routingEngine';
 
 /**
  * Compares two HH:MM time strings.
@@ -63,55 +36,63 @@ export function isTimeBeforeOrEqual(timeA: string, timeB: string): boolean {
 }
 
 /**
- * Checks if the route legs from a student's pickup stop to the final destination
- * contain any blocked road connection.
+ * Adds minutes to an HH:MM time string.
  */
-export function checkTripLegsForBlockedRoute(
-  tripId: string,
-  pickupVillageId: string,
-  blockedConnectionMap: Map<string, TransportConnection>
-): { hasBlockedLeg: boolean; blockedSegment?: TransportConnection } {
-  const legs = TRIP_LEG_MAPPINGS[tripId];
-  if (!legs) {
-    return { hasBlockedLeg: false };
-  }
-
-  // Find index of the pickup stop
-  let pickupIndex = legs.findIndex(l => l.fromStopId === pickupVillageId);
-  if (pickupIndex === -1) {
-    // Stop not found in known legs
-    return { hasBlockedLeg: false };
-  }
-
-  // Check all legs from pickup to destination
-  for (let i = pickupIndex; i < legs.length; i++) {
-    const connId = legs[i].connectionId;
-    const blockedConn = blockedConnectionMap.get(connId);
-    if (blockedConn && blockedConn.isBlocked) {
-      return {
-        hasBlockedLeg: true,
-        blockedSegment: blockedConn
-      };
-    }
-  }
-
-  return { hasBlockedLeg: false };
+export function addMinutesToTimeString(timeStr: string, minutesToAdd: number): string {
+  const [h, m] = timeStr.split(':').map(Number);
+  const total = h * 60 + m + minutesToAdd;
+  const newH = Math.floor(total / 60) % 24;
+  const newM = total % 60;
+  return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
 }
 
 /**
+ * Computes minutes difference: timeA - timeB (returns positive if timeA is later than timeB)
+ */
+export function minutesDiff(timeA: string, timeB: string): number {
+  const [hA, mA] = timeA.split(':').map(Number);
+  const [hB, mB] = timeB.split(':').map(Number);
+  return (hA * 60 + mA) - (hB * 60 + mB);
+}
+
+/**
+ * Trip leg mapping table for known route legs
+ */
+interface TripRouteLegDef {
+  tripId: string;
+  fromStopId: string;
+  toStopOrDestId: string;
+  normalMinutes: number;
+}
+
+const TRIP_LEG_DEFINITIONS: Record<string, TripRouteLegDef[]> = {
+  'trip-01': [
+    { tripId: 'trip-01', fromStopId: 'vil-pavoor', toStopOrDestId: 'vil-farangipete', normalMinutes: 25 },
+    { tripId: 'trip-01', fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-aloysius', normalMinutes: 25 }
+  ],
+  'trip-02': [
+    { tripId: 'trip-02', fromStopId: 'vil-kalladka', toStopOrDestId: 'vil-farangipete', normalMinutes: 20 },
+    { tripId: 'trip-02', fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-aloysius', normalMinutes: 25 }
+  ],
+  'trip-03': [
+    { tripId: 'trip-03', fromStopId: 'vil-kalladka', toStopOrDestId: 'vil-farangipete', normalMinutes: 20 },
+    { tripId: 'trip-03', fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-kpt', normalMinutes: 30 }
+  ],
+  'trip-04': [
+    { tripId: 'trip-04', fromStopId: 'vil-gurupura', toStopOrDestId: 'vil-ganjimutt', normalMinutes: 20 },
+    { tripId: 'trip-04', fromStopId: 'vil-ganjimutt', toStopOrDestId: 'vil-farangipete', normalMinutes: 20 },
+    { tripId: 'trip-04', fromStopId: 'vil-farangipete', toStopOrDestId: 'inst-aloysius', normalMinutes: 25 }
+  ]
+};
+
+/**
  * Pure deterministic allocation solver.
- * 
- * @param requests Array of student transport requests
- * @param trips Array of vehicle trips with current capacities and cancellation states
- * @param connections Array of road connections with blocked statuses
- * @param mode 'BASELINE' or 'RECOVERY'
- * @returns Complete AllocationResult with assignments, honest unmet reasons, and solver logs
  */
 export function runAllocationSolver(
   requests: StudentRequest[],
   trips: VehicleTrip[],
   connections: TransportConnection[],
-  mode: 'BASELINE' | 'RECOVERY' = 'BASELINE'
+  mode: 'BASELINE' | 'RECOVERY' | 'CRISIS_BEFORE_RECOVERY' = 'BASELINE'
 ): AllocationResult {
   const logs: SolverLogEntry[] = [];
   let logCounter = 1;
@@ -134,241 +115,337 @@ export function runAllocationSolver(
 
   addLog(
     'INFO',
-    `Initializing ${mode} allocation solver with ${requests.length} student requests and ${trips.length} vehicle trips.`
+    `Initializing ${mode} allocation engine: ${requests.length} requests, ${trips.length} vehicle trips, ${connections.length} corridors.`
   );
 
-  // Map of blocked connections for O(1) lookup
-  const blockedConnectionMap = new Map<string, TransportConnection>();
-  connections.forEach(conn => {
-    if (conn.isBlocked) {
-      blockedConnectionMap.set(conn.id, conn);
-    }
-  });
+  // Initialize network graph
+  const networkGraph = new TransportNetworkGraph(connections);
+  const blockedConnectionSet = new Set(connections.filter(c => c.isBlocked).map(c => c.id));
 
-  if (blockedConnectionMap.size > 0) {
-    const blockedNames = Array.from(blockedConnectionMap.values())
+  if (blockedConnectionSet.size > 0) {
+    const blockedDesc = connections
+      .filter(c => c.isBlocked)
       .map(c => `${c.fromName} ↔ ${c.toName} (${c.blockedReason || 'Blocked'})`)
       .join('; ');
-    addLog('ALERT', `Active network disruptions detected: ${blockedNames}`);
+    addLog('ALERT', `Active network corridor blockages detected: ${blockedDesc}`);
   }
 
-  // Track remaining seats and assignments per trip
-  interface TripSeatTracker {
+  // Pre-calculate effective trip routes and travel times with Dijkstra
+  interface EvaluatedTripState {
     trip: VehicleTrip;
     capacity: number;
     allocatedSeats: number;
     assignedStudents: Assignment[];
-    isBlocked: boolean;
-    blockedSegments: string[];
+    isAvailable: boolean;
+    computedArrivalTimes: Map<string, string>; // stopId -> arrival at destination
+    activeConnectionIds: string[];
+    hasDetour: boolean;
+    detourMinutesAdded: number;
+    isSevered: boolean;
+    severedReason?: string;
   }
 
-  const tripTrackers = new Map<string, TripSeatTracker>();
+  const tripStates = new Map<string, EvaluatedTripState>();
 
   trips.forEach(trip => {
-    // Check if entire trip is blocked (any of its legs blocked)
-    const blockedSegmentsForTrip: string[] = [];
-    trip.pathConnectionIds.forEach(connId => {
-      const conn = blockedConnectionMap.get(connId);
-      if (conn) {
-        blockedSegmentsForTrip.push(`${conn.fromName} ↔ ${conn.toName}`);
+    if (trip.isCancelled) {
+      tripStates.set(trip.id, {
+        trip,
+        capacity: Math.max(0, trip.capacity),
+        allocatedSeats: 0,
+        assignedStudents: [],
+        isAvailable: false,
+        computedArrivalTimes: new Map(),
+        activeConnectionIds: [],
+        hasDetour: false,
+        detourMinutesAdded: 0,
+        isSevered: true,
+        severedReason: `Vehicle cancelled: ${trip.cancelReason || 'Out of service'}`
+      });
+      addLog('WARNING', `Trip ${trip.vehicleName} is disabled: ${trip.cancelReason || 'Technical issue'}.`, undefined, trip.vehicleName);
+      return;
+    }
+
+    // Check routing for each pickup stop to destination
+    const legs = TRIP_LEG_DEFINITIONS[trip.id] || [];
+    let isSevered = false;
+    let severedReason: string | undefined = undefined;
+    let totalDetourMinutes = 0;
+    const computedArrivalTimes = new Map<string, string>();
+    const allActiveConnIds = new Set<string>();
+
+    for (const stop of trip.stops) {
+      // Find normal baseline shortest path without blockages to detect detours
+      const baselinePath = networkGraph.findShortestPath(
+        stop.villageId,
+        trip.destinationInstitutionId,
+        new Set<string>()
+      );
+
+      // Find shortest path avoiding active blocked roads
+      const pathResult = networkGraph.findShortestPath(
+        stop.villageId,
+        trip.destinationInstitutionId,
+        blockedConnectionSet,
+        baselinePath.isAccessible ? baselinePath.totalTravelMinutes : undefined
+      );
+
+      if (!pathResult.isAccessible) {
+        isSevered = true;
+        severedReason = pathResult.reason || 'No accessible route is available to destination.';
+        break;
       }
-    });
 
-    const isBlocked = blockedSegmentsForTrip.length > 0;
+      pathResult.connectionsUsed.forEach(c => allActiveConnIds.add(c.id));
 
-    tripTrackers.set(trip.id, {
+      if (pathResult.hasDetour) {
+        totalDetourMinutes = Math.max(totalDetourMinutes, pathResult.detourMinutesAdded);
+      }
+
+      // Compute arrival time from this stop: departure time + total path minutes
+      const arrivalTime = addMinutesToTimeString(stop.departureTime, pathResult.totalTravelMinutes);
+      computedArrivalTimes.set(stop.villageId, arrivalTime);
+    }
+
+    const hasDetour = totalDetourMinutes > 0;
+    const finalArrivalTime = hasDetour
+      ? addMinutesToTimeString(trip.finalArrivalTime, totalDetourMinutes)
+      : trip.finalArrivalTime;
+
+    tripStates.set(trip.id, {
       trip,
       capacity: Math.max(0, trip.capacity),
       allocatedSeats: 0,
       assignedStudents: [],
-      isBlocked,
-      blockedSegments: blockedSegmentsForTrip
+      isAvailable: !isSevered,
+      computedArrivalTimes,
+      activeConnectionIds: Array.from(allActiveConnIds),
+      hasDetour,
+      detourMinutesAdded: totalDetourMinutes,
+      isSevered,
+      severedReason
     });
 
-    if (trip.isCancelled) {
-      addLog('WARNING', `Trip ${trip.vehicleName} is marked CANCELLED: ${trip.cancelReason || 'Vehicle out of service'}.`, undefined, trip.vehicleName);
-    } else if (isBlocked) {
-      addLog('WARNING', `Trip ${trip.vehicleName} has blocked segments: ${blockedSegmentsForTrip.join(', ')}.`, undefined, trip.vehicleName);
+    if (isSevered) {
+      addLog('WARNING', `Trip ${trip.vehicleName} route severed: ${severedReason}`, undefined, trip.vehicleName);
+    } else if (hasDetour) {
+      addLog('INFO', `Trip ${trip.vehicleName} routed via alternative bypass (+${totalDetourMinutes} min detour, arrives ${finalArrivalTime}).`, undefined, trip.vehicleName);
     } else {
-      addLog('INFO', `Trip ${trip.vehicleName} active with capacity ${trip.capacity} seats to ${trip.destinationName}.`, undefined, trip.vehicleName);
+      addLog('INFO', `Trip ${trip.vehicleName} operational on normal corridor (${trip.capacity} seats, arrives ${finalArrivalTime}).`, undefined, trip.vehicleName);
     }
   });
 
-  // Sort requests deterministically:
-  // 1. Priority Category (CRITICAL_EXAM -> LAB_PRACTICAL -> REGULAR_ATTENDANCE)
-  // 2. Submission timestamp ascending (first-come)
-  // 3. Stable tie-breaker by student ID
+  // Prioritize requests strictly according to requirements:
+  // 1. Exam students with imminent deadlines (exam start <= 08:45 AM within 2h of 06:45 AM clock)
+  // 2. Earlier required arrival deadlines within that group
+  // 3. Other exam students by deadline
+  // 4. Remaining students by deadline
+  // 5. Stable submission order as final deterministic tie-breaker
   const sortedRequests = [...requests].sort((a, b) => {
-    const pA = PRIORITY_WEIGHTS[a.priorityCategory] ?? 99;
-    const pB = PRIORITY_WEIGHTS[b.priorityCategory] ?? 99;
-    if (pA !== pB) return pA - pB;
+    // Group rank: 0 = Imminent exam (<= 08:45 AM), 1 = Other exam, 2 = Non-exam
+    const isImminentA = a.isExamStudent && a.examStartTime && isTimeBeforeOrEqual(a.examStartTime, '08:45');
+    const isImminentB = b.isExamStudent && b.examStartTime && isTimeBeforeOrEqual(b.examStartTime, '08:45');
 
-    const timeDiff = a.submissionTimestamp.localeCompare(b.submissionTimestamp);
-    if (timeDiff !== 0) return timeDiff;
+    let groupA = 2;
+    if (isImminentA) groupA = 0;
+    else if (a.isExamStudent) groupA = 1;
+
+    let groupB = 2;
+    if (isImminentB) groupB = 0;
+    else if (b.isExamStudent) groupB = 1;
+
+    if (groupA !== groupB) return groupA - groupB;
+
+    // Earlier required arrival deadline first
+    const deadlineDiff = a.requiredArrivalTime.localeCompare(b.requiredArrivalTime);
+    if (deadlineDiff !== 0) return deadlineDiff;
+
+    // Academic category
+    const catWeightA = a.priorityCategory === 'CRITICAL_EXAM' ? 1 : a.priorityCategory === 'LAB_PRACTICAL' ? 2 : 3;
+    const catWeightB = b.priorityCategory === 'CRITICAL_EXAM' ? 1 : b.priorityCategory === 'LAB_PRACTICAL' ? 2 : 3;
+    if (catWeightA !== catWeightB) return catWeightA - catWeightB;
+
+    // Stable submission order
+    const orderA = a.submissionOrder ?? 999;
+    const orderB = b.submissionOrder ?? 999;
+    if (orderA !== orderB) return orderA - orderB;
 
     return a.id.localeCompare(b.id);
   });
 
   const assignments: Assignment[] = [];
   const unmetRequests: UnmetRequest[] = [];
+  let lateAlternativesCount = 0;
 
-  // Process each request
+  // First pass: Capacity-aware Greedy Allocation with Alternative Routes & Deadline Verification
   for (const req of sortedRequests) {
-    const evaluatedTrips: EvaluatedTripCandidate[] = [];
-    let assignedTripTracker: TripSeatTracker | null = null;
+    const evaluatedCandidates: EvaluatedTripCandidate[] = [];
+    let bestTripState: EvaluatedTripState | null = null;
     let chosenPickupStop: VehicleTrip['stops'][0] | null = null;
+    let bestArrivalTime: string | null = null;
+    let potentialLateAlternative: {
+      trip: VehicleTrip;
+      estimatedArrival: string;
+      minutesLate: number;
+    } | null = null;
 
-    // Filter and score candidate trips
     for (const trip of trips) {
-      const tracker = tripTrackers.get(trip.id)!;
+      const state = tripStates.get(trip.id)!;
       const destinationMatch = trip.destinationInstitutionId === req.destinationInstitutionId;
       const stop = trip.stops.find(s => s.villageId === req.originVillageId);
       const servesOrigin = Boolean(stop);
-      const reachesInTime = isTimeBeforeOrEqual(trip.finalArrivalTime, req.requiredArrivalTime);
-      
-      const { hasBlockedLeg, blockedSegment } = checkTripLegsForBlockedRoute(
-        trip.id,
-        req.originVillageId,
-        blockedConnectionMap
-      );
+      const capacityAvailable = state.allocatedSeats < state.capacity;
 
-      const capacityAvailable = tracker.allocatedSeats < tracker.capacity;
+      const computedArrival = servesOrigin
+        ? (state.computedArrivalTimes.get(req.originVillageId) || trip.finalArrivalTime)
+        : trip.finalArrivalTime;
+
+      const reachesInTime = isTimeBeforeOrEqual(computedArrival, req.requiredArrivalTime);
 
       let rejectionReason = '';
       if (trip.isCancelled) {
-        rejectionReason = `Trip cancelled: ${trip.cancelReason || 'Vehicle unavailable'}`;
+        rejectionReason = `Vehicle cancelled: ${trip.cancelReason || 'Technical issue'}`;
+      } else if (state.isSevered) {
+        rejectionReason = state.severedReason || 'No accessible route is available.';
       } else if (!destinationMatch) {
         rejectionReason = `Heads to ${trip.destinationName}, not requested ${req.destinationName}`;
       } else if (!servesOrigin) {
         rejectionReason = `No scheduled stop at ${req.originVillageName}`;
-      } else if (hasBlockedLeg && blockedSegment) {
-        rejectionReason = `Route blocked between ${blockedSegment.fromName} and ${blockedSegment.toName} (${blockedSegment.blockedReason || 'Road impassable'})`;
       } else if (!reachesInTime) {
-        rejectionReason = `Arrives at ${trip.finalArrivalTime}, after requested deadline ${req.requiredArrivalTime}`;
+        const lateMins = minutesDiff(computedArrival, req.requiredArrivalTime);
+        rejectionReason = `Arrives at ${computedArrival} (${lateMins}m after required deadline ${req.requiredArrivalTime})`;
+        if (capacityAvailable && !potentialLateAlternative) {
+          potentialLateAlternative = {
+            trip,
+            estimatedArrival: computedArrival,
+            minutesLate: lateMins
+          };
+        }
       } else if (!capacityAvailable) {
-        rejectionReason = `Capacity exhausted (${tracker.allocatedSeats}/${tracker.capacity} seats filled)`;
+        rejectionReason = `Capacity exhausted (${state.allocatedSeats}/${state.capacity} seats filled)`;
       } else {
-        rejectionReason = 'Feasible and available';
+        rejectionReason = state.hasDetour
+          ? `Feasible via alternative bypass (+${state.detourMinutesAdded}m detour, arrives ${computedArrival})`
+          : 'Feasible and on-time';
       }
 
-      const candidate: EvaluatedTripCandidate = {
+      evaluatedCandidates.push({
         tripId: trip.id,
         vehicleName: trip.vehicleName,
         isCancelled: trip.isCancelled,
-        isBlocked: hasBlockedLeg,
-        blockedReason: blockedSegment?.blockedReason,
+        isBlocked: state.isSevered,
+        blockedReason: state.severedReason,
         destinationMatch,
         servesOrigin,
         reachesInTime,
         capacityAvailable,
-        rejectionReason
-      };
+        rejectionReason,
+        alternativeRouteFound: state.hasDetour,
+        alternativeMinutesAdded: state.detourMinutesAdded,
+        estimatedArrival: computedArrival
+      });
 
-      evaluatedTrips.push(candidate);
-
-      // Check if this candidate is feasible right now
+      // Valid on-time candidate check
       if (
         !trip.isCancelled &&
+        !state.isSevered &&
         destinationMatch &&
         servesOrigin &&
-        !hasBlockedLeg &&
         reachesInTime &&
         capacityAvailable
       ) {
-        // If we haven't selected a trip yet, or this trip has more available seats, choose it
-        if (!assignedTripTracker) {
-          assignedTripTracker = tracker;
+        if (!bestTripState) {
+          bestTripState = state;
           chosenPickupStop = stop!;
+          bestArrivalTime = computedArrival;
         } else {
-          // Tie-break: prefer trip with more remaining seats for load balance
-          const currentRemaining = assignedTripTracker.capacity - assignedTripTracker.allocatedSeats;
-          const candidateRemaining = tracker.capacity - tracker.allocatedSeats;
-          if (candidateRemaining > currentRemaining) {
-            assignedTripTracker = tracker;
+          // Prefer trip with more available seats for load balance
+          const currAvail = bestTripState.capacity - bestTripState.allocatedSeats;
+          const candidateAvail = state.capacity - state.allocatedSeats;
+          if (candidateAvail > currAvail) {
+            bestTripState = state;
             chosenPickupStop = stop!;
+            bestArrivalTime = computedArrival;
           }
         }
       }
     }
 
-    if (assignedTripTracker && chosenPickupStop) {
-      // Allocate seat
-      assignedTripTracker.allocatedSeats += 1;
-      const seatNumber = assignedTripTracker.allocatedSeats;
+    if (bestTripState && chosenPickupStop && bestArrivalTime) {
+      bestTripState.allocatedSeats += 1;
+      const seatNumber = bestTripState.allocatedSeats;
 
       const assignment: Assignment = {
         requestId: req.id,
         studentName: req.studentName,
         gradeOrStream: req.gradeOrStream,
-        tripId: assignedTripTracker.trip.id,
-        vehicleName: assignedTripTracker.trip.vehicleName,
+        tripId: bestTripState.trip.id,
+        vehicleName: bestTripState.trip.vehicleName,
         pickupVillageId: req.originVillageId,
         pickupVillageName: req.originVillageName,
         dropoffInstitutionId: req.destinationInstitutionId,
         dropoffInstitutionName: req.destinationName,
         pickupTime: chosenPickupStop.departureTime,
-        dropoffTime: assignedTripTracker.trip.finalArrivalTime,
+        dropoffTime: bestArrivalTime,
         seatNumber,
-        priorityCategory: req.priorityCategory
+        priorityCategory: req.priorityCategory,
+        isExamStudent: req.isExamStudent,
+        examStartTime: req.examStartTime,
+        isOnTime: true,
+        routeDetails: {
+          connectionIds: bestTripState.activeConnectionIds,
+          hasDetour: bestTripState.hasDetour,
+          detourMinutesAdded: bestTripState.detourMinutesAdded,
+          pathNodeNames: bestTripState.trip.stops.map(s => s.villageName)
+        }
       };
 
       assignments.push(assignment);
-      assignedTripTracker.assignedStudents.push(assignment);
+      bestTripState.assignedStudents.push(assignment);
 
       addLog(
         'DECISION',
-        `Assigned ${req.studentName} (${req.priorityCategory}) to ${assignedTripTracker.trip.vehicleName} [Seat ${seatNumber}/${assignedTripTracker.capacity}] at ${chosenPickupStop.departureTime}.`,
+        `Assigned ${req.studentName} (${req.isExamStudent ? 'EXAM: ' + req.examSubject : req.priorityCategory}) to ${bestTripState.trip.vehicleName} [Seat ${seatNumber}/${bestTripState.capacity}]. Arrives on-time at ${bestArrivalTime}.${bestTripState.hasDetour ? ' (Using alternative bypass route)' : ''}`,
         req.studentName,
-        assignedTripTracker.trip.vehicleName
+        bestTripState.trip.vehicleName
       );
     } else {
-      // Student is UNMET. Formulate honest, specific explanation.
-      const originTrips = evaluatedTrips.filter(t => t.servesOrigin);
-      const destinationAndOriginTrips = evaluatedTrips.filter(t => t.servesOrigin && t.destinationMatch);
+      // Unmet request - determine honest specific reason
+      const originTrips = evaluatedCandidates.filter(t => t.servesOrigin);
+      const matchingTrips = evaluatedCandidates.filter(t => t.servesOrigin && t.destinationMatch);
 
       let primaryReasonCode: UnmetReasonCode = 'CAPACITY_EXCEEDED';
       let honestExplanation = '';
 
       if (originTrips.length === 0) {
         primaryReasonCode = 'NO_CONNECTING_ROUTE';
-        honestExplanation = `No transport service is scheduled through ${req.originVillageName} for ${req.destinationName}.`;
-      } else if (destinationAndOriginTrips.length === 0) {
+        honestExplanation = `No transport service is scheduled through ${req.originVillageName} to ${req.destinationName}.`;
+      } else if (matchingTrips.length === 0) {
         primaryReasonCode = 'NO_CONNECTING_ROUTE';
         honestExplanation = `Vehicles serving ${req.originVillageName} do not travel to ${req.destinationName}.`;
       } else {
-        const allCancelled = destinationAndOriginTrips.every(t => t.isCancelled);
-        const allBlocked = destinationAndOriginTrips.every(t => t.isBlocked);
-        const allCapacityFull = destinationAndOriginTrips.every(t => !t.capacityAvailable && !t.isCancelled && !t.isBlocked);
+        const allCancelled = matchingTrips.every(t => t.isCancelled);
+        const allBlocked = matchingTrips.every(t => t.isBlocked);
+        const allTimingFailed = matchingTrips.every(t => !t.reachesInTime && !t.isCancelled && !t.isBlocked);
 
         if (allCancelled) {
           primaryReasonCode = 'TRIP_CANCELLED';
-          const tripNames = destinationAndOriginTrips.map(t => t.vehicleName).join(', ');
-          honestExplanation = `The only scheduled transport serving ${req.originVillageName} (${tripNames}) has been CANCELLED. No active alternative vehicle exists for this sector.`;
+          honestExplanation = `The only scheduled transport serving ${req.originVillageName} has been CANCELLED due to emergency breakdown. No alternative vehicle exists for this sector.`;
         } else if (allBlocked) {
           primaryReasonCode = 'ROUTE_BLOCKED';
-          const reasons = destinationAndOriginTrips.map(t => t.blockedReason || 'road obstruction').join(', ');
-          honestExplanation = `The transport corridor from ${req.originVillageName} to ${req.destinationName} is impassable due to a blocked route segment (${reasons}).`;
-        } else if (allCapacityFull) {
-          primaryReasonCode = 'CAPACITY_EXCEEDED';
-          const tripDetails = destinationAndOriginTrips
-            .map(t => `${t.vehicleName} (${tripTrackers.get(t.tripId)?.capacity} seats)`)
-            .join(', ');
-          honestExplanation = `All feasible trips reaching ${req.destinationName} before ${req.requiredArrivalTime} (${tripDetails}) are at maximum capacity. Remaining seats were prioritised for earlier/higher-priority requests.`;
+          honestExplanation = `No accessible route is available. All corridors from ${req.originVillageName} are impassable or cut off by flooding.`;
+        } else if (allTimingFailed) {
+          primaryReasonCode = 'TIMING_INCOMPATIBLE';
+          honestExplanation = `Surviving vehicle(s) arrive after required deadline (${req.requiredArrivalTime}). Detour route cannot meet the exam buffer.`;
         } else {
-          // Mixed reasons
-          const hasCancelled = destinationAndOriginTrips.some(t => t.isCancelled);
-          const hasBlocked = destinationAndOriginTrips.some(t => t.isBlocked);
-          if (hasBlocked) {
-            primaryReasonCode = 'ROUTE_BLOCKED';
-            honestExplanation = `Connecting route from ${req.originVillageName} is blocked, and alternate vehicles lack sufficient remaining capacity.`;
-          } else if (hasCancelled) {
-            primaryReasonCode = 'TRIP_CANCELLED';
-            honestExplanation = `Primary trip serving ${req.originVillageName} was cancelled, and remaining feasible trips are fully booked.`;
-          } else {
-            primaryReasonCode = 'CAPACITY_EXCEEDED';
-            honestExplanation = `No remaining unallocated seat on any vehicle operating from ${req.originVillageName} to ${req.destinationName} before ${req.requiredArrivalTime}.`;
-          }
+          primaryReasonCode = 'CAPACITY_EXCEEDED';
+          honestExplanation = `All feasible vehicles reaching ${req.destinationName} on time are at maximum capacity. Remaining seats were prioritised for earlier/higher-urgency exam candidates.`;
         }
+      }
+
+      const hasLateAlt = Boolean(potentialLateAlternative);
+      if (hasLateAlt) {
+        lateAlternativesCount++;
       }
 
       unmetRequests.push({
@@ -383,44 +460,58 @@ export function runAllocationSolver(
         priorityCategory: req.priorityCategory,
         primaryReasonCode,
         honestExplanation,
-        evaluatedTrips
+        isExamStudent: req.isExamStudent,
+        examStartTime: req.examStartTime,
+        evaluatedTrips: evaluatedCandidates,
+        hasLateAlternative: hasLateAlt,
+        lateAlternativeDetails: potentialLateAlternative
+          ? {
+              tripName: potentialLateAlternative.trip.vehicleName,
+              estimatedArrival: potentialLateAlternative.estimatedArrival,
+              deadline: req.requiredArrivalTime,
+              minutesLate: potentialLateAlternative.minutesLate
+            }
+          : undefined
       });
 
       addLog(
         'WARNING',
-        `Could not allocate transport for ${req.studentName}: ${honestExplanation}`,
+        `Unmet demand for ${req.studentName} (${req.isExamStudent ? 'EXAM CANDIDATE' : 'Regular'}): ${honestExplanation}`,
         req.studentName
       );
     }
   }
 
-  // Calculate utilization metrics
+  // Calculate metrics
   const tripUtilization: TripUtilization[] = [];
   let totalCapacity = 0;
   let allocatedCapacity = 0;
 
-  tripTrackers.forEach(tracker => {
-    totalCapacity += tracker.capacity;
-    allocatedCapacity += tracker.allocatedSeats;
-    const utilizationPct = tracker.capacity > 0
-      ? Math.round((tracker.allocatedSeats / tracker.capacity) * 100)
+  tripStates.forEach(state => {
+    totalCapacity += state.isAvailable ? state.capacity : 0;
+    allocatedCapacity += state.allocatedSeats;
+    const utilizationPct = state.capacity > 0
+      ? Math.round((state.allocatedSeats / state.capacity) * 100)
       : 0;
 
     let status: TripUtilization['status'] = 'ACTIVE';
-    if (tracker.trip.isCancelled) status = 'CANCELLED';
-    else if (tracker.isBlocked) status = 'BLOCKED';
-    else if (tracker.allocatedSeats >= tracker.capacity) status = 'FULL';
+    if (state.trip.isCancelled) status = 'CANCELLED';
+    else if (state.isSevered) status = 'BLOCKED';
+    else if (state.allocatedSeats >= state.capacity) status = 'FULL';
 
     tripUtilization.push({
-      tripId: tracker.trip.id,
-      vehicleName: tracker.trip.vehicleName,
-      capacity: tracker.capacity,
-      allocatedSeats: tracker.allocatedSeats,
-      isCancelled: tracker.trip.isCancelled,
-      isBlocked: tracker.isBlocked,
-      blockedConnectionIds: tracker.blockedSegments,
+      tripId: state.trip.id,
+      vehicleName: state.trip.vehicleName,
+      capacity: state.capacity,
+      allocatedSeats: state.allocatedSeats,
+      isCancelled: state.trip.isCancelled,
+      isBlocked: state.isSevered,
+      blockedConnectionIds: state.trip.pathConnectionIds.filter(id => blockedConnectionSet.has(id)),
       utilizationPct,
-      status
+      status,
+      activeRouteConnectionIds: state.activeConnectionIds,
+      hasDetour: state.hasDetour,
+      detourMinutesAdded: state.detourMinutesAdded
     });
   });
 
@@ -428,9 +519,12 @@ export function runAllocationSolver(
     ? Math.round((allocatedCapacity / totalCapacity) * 100)
     : 0;
 
+  const examRequestsCount = requests.filter(r => r.isExamStudent).length;
+  const examAssignedOnTimeCount = assignments.filter(a => a.isExamStudent && a.isOnTime).length;
+
   addLog(
     'INFO',
-    `${mode} allocation completed: ${assignments.length} assigned (${capacityUtilizationPct}% seat utilization), ${unmetRequests.length} unmet.`
+    `${mode} allocation completed: ${assignments.length} on-time assignments (${examAssignedOnTimeCount}/${examRequestsCount} exam students on time), ${unmetRequests.length} unmet, ${lateAlternativesCount} late alternatives.`
   );
 
   return {
@@ -439,18 +533,21 @@ export function runAllocationSolver(
     totalRequests: requests.length,
     assignedCount: assignments.length,
     unmetCount: unmetRequests.length,
+    examRequestsCount,
+    examAssignedOnTimeCount,
     totalCapacity,
     allocatedCapacity,
     capacityUtilizationPct,
     assignments,
     unmetRequests,
     tripUtilization,
-    solverLogs: logs
+    solverLogs: logs,
+    lateAlternativesCount
   };
 }
 
 /**
- * Computes difference between baseline and recovery results for P1 comparison view.
+ * Computes difference between baseline and recovery results for comparison views.
  */
 export function computeAllocationDiff(
   baseline: AllocationResult,
@@ -470,16 +567,14 @@ export function computeAllocationDiff(
   baseline.assignments.forEach(baseAssign => {
     const recoveryAssign = recoveryAssignmentsMap.get(baseAssign.requestId);
     if (!recoveryAssign) {
-      // Was assigned, now unmet
       const unmet = recovery.unmetRequests.find(u => u.requestId === baseAssign.requestId);
       displacedAssignments.push({
         studentName: baseAssign.studentName,
         previousTripName: baseAssign.vehicleName,
         newStatus: 'UNMET',
-        reason: unmet?.honestExplanation || 'Displaced due to capacity reallocation or cancellation'
+        reason: unmet?.honestExplanation || 'Displaced due to capacity deficit or route blockage'
       });
     } else if (recoveryAssign.tripId !== baseAssign.tripId) {
-      // Rerouted to a different vehicle
       displacedAssignments.push({
         studentName: baseAssign.studentName,
         previousTripName: baseAssign.vehicleName,
@@ -499,4 +594,3 @@ export function computeAllocationDiff(
     newlyAssigned
   };
 }
-

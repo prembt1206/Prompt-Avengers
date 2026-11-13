@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, X, CheckCircle, ArrowRight, Shield, Play, RotateCw, AlertTriangle } from 'lucide-react';
+import { BookOpen, X, Play, RotateCw, AlertTriangle, ArrowRight, Zap, CheckCircle2 } from 'lucide-react';
 
 interface DemoScriptModalProps {
   isOpen: boolean;
@@ -27,10 +27,12 @@ export const DemoScriptModal: React.FC<DemoScriptModalProps> = ({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '780px' }}>
-        <div className="modal-header">
+        <div className="modal-header" style={{ background: '#042f2e', color: 'white' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <BookOpen size={20} className="text-primary" />
-            <h3 className="card-title">RouteLess Evaluator Challenge Walkthrough</h3>
+            <BookOpen size={20} className="text-teal" />
+            <h3 className="card-title" style={{ color: 'white' }}>
+              Evaluator Guide: "The Exam Day Crisis" Walkthrough
+            </h3>
           </div>
           <button
             type="button"
@@ -43,60 +45,20 @@ export const DemoScriptModal: React.FC<DemoScriptModalProps> = ({
         </div>
 
         <div className="modal-body">
-          <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', fontSize: '0.85rem', color: '#1e3a8a' }}>
-            <strong>Goal:</strong> Validate the complete 6-step core demonstration flow specified in the Challenge prompt. Follow each step below in order:
+          <div style={{ background: '#f0fdfa', border: '1px solid #99f6e4', borderRadius: '8px', padding: '12px 16px', marginBottom: '18px', fontSize: '0.85rem', color: '#042f2e' }}>
+            <strong>Official Surprise Hurdle:</strong> Test the four simultaneous crisis events: 2 government buses disabled, student demand surges by 40%, valley road flooded, and students facing imminent exams within 2 hours. Follow these exact steps:
           </div>
 
-          <div className="step-item">
-            <div className="step-num">1</div>
-            <div className="step-content" style={{ flex: 1 }}>
-              <h4>Student Transport Request Flow</h4>
-              <p>
-                Students from 5 rural hamlets around Mangaluru (Pavoor, Farangipete, Kalladka, Ganjimutt, Gurupura) submit transport requests to 2 landmark Mangaluru institutions (St. Aloysius School & Karnataka Polytechnic KPT). 17 synthetic requests are seeded, and you can submit custom requests via the Student portal.
-              </p>
-              <div style={{ marginTop: '8px' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => {
-                    onSwitchToStudentView();
-                    onClose();
-                  }}
-                >
-                  Go to Student Request View <ArrowRight size={12} />
-                </button>
-              </div>
+          <div className="step-item" style={{ display: 'flex', gap: '16px', padding: '12px 0', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0d9488', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+              1
             </div>
-          </div>
-
-          <div className="step-item">
-            <div className="step-num">2</div>
-            <div className="step-content" style={{ flex: 1 }}>
-              <h4>Coordinator Fleet & Network Review</h4>
-              <p>
-                Switch to Coordinator View to inspect the 3 vehicle trips (Bus 01, Van 02, Cruiser 03), capacity limits (6, 4, 5 seats = 15 total), and the interactive SVG topology.
-              </p>
-              <div style={{ marginTop: '8px' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => {
-                    onSwitchToCoordinatorView();
-                    onClose();
-                  }}
-                >
-                  Go to Coordinator Cockpit <ArrowRight size={12} />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="step-item">
-            <div className="step-num">3</div>
-            <div className="step-content" style={{ flex: 1 }}>
-              <h4>Run Baseline Allocation</h4>
-              <p>
-                Click <strong>"Run Baseline Allocation"</strong>. The deterministic pure TypeScript solver assigns students up to physical capacity limits (15 seats). Honest explanations are generated for the 2 unmet students because requests (17) exceed capacity (15).
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                Verify Normal Baseline Operations
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>
+                20 baseline requests (divisible by 5) are registered across 4 vehicles (24 seats total). Click "Run Baseline Allocation" to observe clean, capacity-safe initial distribution.
               </p>
               <div style={{ marginTop: '8px' }}>
                 <button
@@ -107,18 +69,23 @@ export const DemoScriptModal: React.FC<DemoScriptModalProps> = ({
                     onClose();
                   }}
                 >
-                  <Play size={12} /> Execute Baseline Allocation
+                  <Play size={12} /> Run Baseline Allocation
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="step-item">
-            <div className="step-num">4</div>
-            <div className="step-content" style={{ flex: 1 }}>
-              <h4>Simulate Vehicle Cancellation or Blocked Route</h4>
-              <p>
-                Click <strong>"Scenario A: Bus 01 Breakdown"</strong> or <strong>"Scenario B: Causeway Flash Flood"</strong>, or toggle cancellation / blocked status directly on the vehicle cards or SVG map.
+          <div className="step-item" style={{ display: 'flex', gap: '16px', padding: '12px 0', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#d97706', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+              2
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                Activate "The Exam Day Crisis"
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>
+                Click the prominent "Activate Exam Day Crisis" button. Notice:
+                Bus 01 & Bus 02 are disabled (-13 seats), Ganjimutt road is flooded, and demand surges by +40% (+8 exam students, total 28 requests).
               </p>
               <div style={{ marginTop: '8px' }}>
                 <button
@@ -129,40 +96,63 @@ export const DemoScriptModal: React.FC<DemoScriptModalProps> = ({
                     onClose();
                   }}
                 >
-                  <AlertTriangle size={12} /> Trigger Bus 01 Breakdown Preset
+                  <Zap size={12} /> Activate Exam Day Crisis Now
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="step-item">
-            <div className="step-num">5</div>
-            <div className="step-content" style={{ flex: 1 }}>
-              <h4>Run Recovery Allocation</h4>
-              <p>
-                Click <strong>"Run Recovery Allocation"</strong>. The solver reallocates seats without exceeding capacity, avoiding cancelled vehicles and impassable roads.
+          <div className="step-item" style={{ display: 'flex', gap: '16px', padding: '12px 0', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0d9488', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+              3
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                Inspect State B: Crisis Before Recovery
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>
+                Inspect the system in its collapsed state. Surviving assignments are re-validated, disabled bus seats are removed, and new surge requests are pending. Previous allocations are flagged as stale.
+              </p>
+            </div>
+          </div>
+
+          <div className="step-item" style={{ display: 'flex', gap: '16px', padding: '12px 0', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0d9488', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+              4
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                Generate Recovery Plan (Dijkstra + Exam Priority)
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>
+                Click "Generate Recovery Plan". The pure solver finds the shortest bypass path around the flooded road via Adyar Ridge (+8m detour) and prioritizes students with imminent board exams within the 2-hour window.
               </p>
               <div style={{ marginTop: '8px' }}>
                 <button
                   type="button"
-                  className="btn btn-warning btn-sm"
+                  className="btn btn-primary btn-sm"
                   onClick={() => {
                     onRunRecovery();
                     onClose();
                   }}
+                  style={{ background: '#0d9488' }}
                 >
-                  <RotateCw size={12} /> Execute Recovery Allocation
+                  <RotateCw size={12} /> Generate Recovery Plan
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="step-item" style={{ borderBottom: 'none' }}>
-            <div className="step-num">6</div>
-            <div className="step-content" style={{ flex: 1 }}>
-              <h4>Verify Results & Honest Unmet Explanations</h4>
-              <p>
-                Inspect the Validated Assignments and Unmet Demand rosters. Review the P1 <strong>Baseline vs Recovery Diff</strong> to see who was displaced or rerouted, and check the <strong>Solver Logs</strong> for transparent reasoning.
+          <div className="step-item" style={{ display: 'flex', gap: '16px', padding: '12px 0' }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#042f2e', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+              5
+            </div>
+            <div style={{ flex: 1 }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                Review 3-State Recovery Audit & Honest Explanations
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>
+                Review the "Crisis Impact & 3-State Audit" tab. Compare State B vs State C metrics. See how all 11 surviving seats were utilized to save exam candidates, and inspect the honest reasons for unassigned students without fabricated capacity.
               </p>
             </div>
           </div>
@@ -177,14 +167,13 @@ export const DemoScriptModal: React.FC<DemoScriptModalProps> = ({
               onClose();
             }}
           >
-            Reset Demo to Initial Seed
+            Reset Demo to Defaults
           </button>
           <button type="button" className="btn btn-secondary" onClick={onClose}>
-            Close Guide
+            Close Walkthrough
           </button>
         </div>
       </div>
     </div>
   );
 };
-

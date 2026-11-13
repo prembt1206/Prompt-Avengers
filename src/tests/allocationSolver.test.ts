@@ -33,9 +33,9 @@ describe('RouteLess Pure Allocation Solver (Mangaluru Suburban Region)', () => {
       expect(util.allocatedSeats).toBeLessThanOrEqual(util.capacity);
     });
 
-    // Seeded data has 17 requests and 15 total vehicle seats (6 + 4 + 5)
-    expect(result1.totalCapacity).toBe(15);
-    expect(result1.assignedCount).toBe(15);
+    // Seeded data has 20 requests and 24 total vehicle seats (7 + 6 + 5 + 6)
+    expect(result1.totalCapacity).toBe(24);
+    expect(result1.assignedCount).toBe(18);
     expect(result1.unmetCount).toBe(2);
 
     // Unmet requests must have honest explanations
@@ -87,11 +87,11 @@ describe('RouteLess Pure Allocation Solver (Mangaluru Suburban Region)', () => {
     expect(diff.displacedAssignments.length).toBeGreaterThan(0);
   });
 
-  it('should handle blocked route segment (Gurupura causeway flooding)', () => {
-    // Block Gurupura causeway (seg-guru-ganji)
+  it('should reroute via bypass when direct valley road is flooded', () => {
+    // Block Ganjimutt - Farangipete direct road (seg-ganji-far)
     const blockedConnections: TransportConnection[] = SEEDED_CONNECTIONS.map(conn =>
-      conn.id === 'seg-guru-ganji'
-        ? { ...conn, isBlocked: true, blockedReason: 'Phalguni river causeway submerged under 2.5ft flood runoff' }
+      conn.id === 'seg-ganji-far'
+        ? { ...conn, isBlocked: true, blockedReason: 'River overflow across valley corridor' }
         : conn
     );
 
@@ -102,25 +102,20 @@ describe('RouteLess Pure Allocation Solver (Mangaluru Suburban Region)', () => {
       'RECOVERY'
     );
 
-    // All Gurupura students attempting to reach St. Aloysius via Trip 03 must be unmet due to route block
-    const gurupuraRequests = SEEDED_STUDENT_REQUESTS.filter(r => r.originVillageId === 'vil-gurupura');
-    gurupuraRequests.forEach(gReq => {
-      const unmet = result.unmetRequests.find(u => u.requestId === gReq.id);
-      expect(unmet).toBeDefined();
-      expect(unmet?.primaryReasonCode).toBe('ROUTE_BLOCKED');
-      expect(unmet?.honestExplanation).toContain('impassable');
-    });
-
-    // Ganjimutt and Farangipete students can still board Trip 03 because their legs are not blocked
-    const ganjimuttAssigned = result.assignments.filter(a => a.pickupVillageId === 'vil-ganjimutt');
-    expect(ganjimuttAssigned.length).toBeGreaterThan(0);
+    // Cruiser 04 should detect detour via Adyar Ridge (+8 min)
+    const cruiser = result.tripUtilization.find(t => t.tripId === 'trip-04');
+    expect(cruiser).toBeDefined();
+    expect(cruiser?.hasDetour).toBe(true);
+    expect(cruiser?.detourMinutesAdded).toBe(8);
+    expect(cruiser?.activeRouteConnectionIds).toContain('seg-ganji-adyar');
+    expect(cruiser?.activeRouteConnectionIds).toContain('seg-adyar-far');
+    expect(cruiser?.activeRouteConnectionIds).not.toContain('seg-ganji-far');
   });
 
   it('should immediately update allocations when vehicle capacity is dynamically edited', () => {
-    // Increase Trip 01 capacity from 6 to 7, and Trip 02 capacity from 4 to 5
+    // Increase Trip 04 (Cruiser 04) capacity from 6 to 8 to accommodate unmet students
     const expandedTrips: VehicleTrip[] = SEEDED_VEHICLE_TRIPS.map(trip => {
-      if (trip.id === 'trip-01') return { ...trip, capacity: 7 };
-      if (trip.id === 'trip-02') return { ...trip, capacity: 5 };
+      if (trip.id === 'trip-04') return { ...trip, capacity: 8 };
       return trip;
     });
 
@@ -131,9 +126,9 @@ describe('RouteLess Pure Allocation Solver (Mangaluru Suburban Region)', () => {
       'BASELINE'
     );
 
-    // Total capacity increased to 17 (7 + 5 + 5), which matches total requests of 17
-    expect(result.totalCapacity).toBe(17);
-    expect(result.assignedCount).toBe(16); // 16 assigned (one remaining unmet due to destination/timing or distribution)
+    // Total capacity increased to 26 (7 + 6 + 5 + 8)
+    expect(result.totalCapacity).toBe(26);
+    expect(result.assignedCount).toBe(19); // Accommodated 1 additional student
   });
 
   it('should reject requests with arrival deadlines earlier than trip arrival time', () => {
@@ -147,9 +142,13 @@ describe('RouteLess Pure Allocation Solver (Mangaluru Suburban Region)', () => {
         destinationInstitutionId: 'inst-aloysius',
         destinationInstitutionName: 'St. Aloysius High School & PU College',
         destinationName: 'St. Aloysius High School & PU College',
-        requiredArrivalTime: '07:45', // Trip 01 arrives at 08:15!
+        requiredArrivalTime: '07:00', // Earliest trip arrives at 08:10!
         priorityCategory: 'CRITICAL_EXAM',
-        submissionTimestamp: '2026-11-13T06:00:00Z'
+        submissionTimestamp: '2026-11-13T06:00:00Z',
+        submissionOrder: 99,
+        isExamStudent: true,
+        examStartTime: '07:15',
+        examSubject: 'English'
       }
     ];
 
